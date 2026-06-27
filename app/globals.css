@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  ──────────────────────────────────────────────────────────────────────────
+  SISTEMA BI-PIEL · TOKENS SEMÁNTICOS
+  ──────────────────────────────────────────────────────────────────────────
+  4 combinaciones = 2 pieles (salon | barberia) × 2 temas (light | dark).
+  Se seleccionan con atributos en <html>:  data-skin="..."  data-theme="..."
+  Los valores son canales RGB ("R G B") para soportar <alpha-value> de Tailwind.
+  NINGÚN componente debe hardcodear color: todos leen estos tokens.
+*/
+
+:root {
+  /* radios / tiempos compartidos */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===================== 🌸 SALÓN ===================== */
+
+[data-skin="salon"][data-theme="light"] {
+  --bg: 250 245 241;
+  --surface: 255 251 248;
+  --surface-2: 248 240 235;
+  --border: 232 216 214;
+  --fg: 43 31 35;
+  --muted: 124 106 112;
+  --accent: 183 105 120;          /* dusty rose */
+  --accent-soft: 232 205 211;
+  --accent-contrast: 255 252 250; /* texto sobre acento */
+  --metallic: 176 141 87;         /* champagne */
+  --aurora-1: 224 168 184;        /* rosa empolvado */
+  --aurora-2: 226 196 150;        /* champagne */
+  --aurora-strength: 0.45;
+}
+
+[data-skin="salon"][data-theme="dark"] {
+  --bg: 19 14 17;
+  --surface: 28 21 25;
+  --surface-2: 38 29 34;
+  --border: 58 45 52;
+  --fg: 245 236 239;
+  --muted: 172 152 160;
+  --accent: 210 150 168;          /* dusty rose luminoso */
+  --accent-soft: 70 48 57;
+  --accent-contrast: 24 16 20;
+  --metallic: 214 178 126;        /* champagne */
+  --aurora-1: 196 120 144;
+  --aurora-2: 190 150 102;
+  --aurora-strength: 0.55;
+}
+
+/* ===================== 💈 BARBERÍA ===================== */
+
+[data-skin="barberia"][data-theme="light"] {
+  --bg: 240 237 232;              /* hueso / piedra cálida */
+  --surface: 251 249 245;
+  --surface-2: 235 231 224;
+  --border: 219 213 204;
+  --fg: 28 28 30;
+  --muted: 102 99 94;
+  --accent: 160 92 54;            /* cobre envejecido */
+  --accent-soft: 226 210 196;
+  --accent-contrast: 252 249 245;
+  --metallic: 150 120 75;         /* dorado envejecido */
+  --aurora-1: 178 120 78;         /* cobre */
+  --aurora-2: 150 124 82;         /* dorado viejo */
+  --aurora-strength: 0.32;
+}
+
+[data-skin="barberia"][data-theme="dark"] {
+  --bg: 15 15 17;                 /* carbón near-black */
+  --surface: 23 23 26;
+  --surface-2: 32 32 36;
+  --border: 51 51 57;
+  --fg: 238 236 232;
+  --muted: 150 147 142;
+  --accent: 198 126 80;           /* cobre */
+  --accent-soft: 58 44 34;
+  --accent-contrast: 18 16 14;
+  --metallic: 192 160 106;        /* dorado envejecido */
+  --aurora-1: 184 112 66;
+  --aurora-2: 150 120 78;
+  --aurora-strength: 0.5;
+}
+
+/* ===================== BASE ===================== */
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-feature-settings: "ss01", "cv01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.5s var(--ease-spring), color 0.35s ease;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* glass premium reutilizable */
+.glass {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--surface) / 0.82),
+    rgb(var(--surface) / 0.62)
+  );
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+
+/* scrollbar sutil */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 9999px;
+  border: 2px solid rgb(var(--bg));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted) / 0.6);
+}
+
+/* foco accesible */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respeta a quien pide menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

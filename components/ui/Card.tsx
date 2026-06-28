@@ -19,11 +19,13 @@ export function Card({
   className,
   interactive = true,
   as = "div",
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
   interactive?: boolean;
   as?: "div" | "section" | "article";
+  onClick?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
@@ -58,6 +60,7 @@ export function Card({
   return (
     <MotionTag
       ref={ref}
+      onClick={onClick}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       style={

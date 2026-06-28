@@ -46,7 +46,12 @@ export function Reveal({
   );
 }
 
-function Item({
+/**
+ * Export NOMBRADO (no `Reveal.Item`): los componentes compuestos por propiedad
+ * estática no sobreviven el límite servidor/cliente de RSC. Para usarse dentro
+ * de un Server Component hay que importarlo como export nombrado.
+ */
+export function RevealItem({
   children,
   className,
   as = "div",
@@ -62,5 +67,3 @@ function Item({
     </MotionTag>
   );
 }
-
-Reveal.Item = Item;

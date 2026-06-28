@@ -16,7 +16,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { KpiNumber } from "@/components/ui/KpiNumber";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { BusinessType } from "@/lib/skins";
@@ -104,25 +104,25 @@ export default function DemoPage() {
 
         {/* título */}
         <Reveal className="mb-10 space-y-3">
-          <Reveal.Item>
+          <RevealItem>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border glass px-3 py-1 text-xs text-muted">
               <Sparkles size={13} className="text-metallic" />
               Sistema de diseño bi-piel
             </span>
-          </Reveal.Item>
-          <Reveal.Item>
+          </RevealItem>
+          <RevealItem>
             <h1 className="max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
               Una sola plataforma,{" "}
               <span className="text-accent">dos pieles</span> que se visten solas.
             </h1>
-          </Reveal.Item>
-          <Reveal.Item>
+          </RevealItem>
+          <RevealItem>
             <p className="max-w-xl text-muted">
               Cambia entre Salón y Barbería arriba a la derecha, y alterna el
               tema claro/oscuro. Todo lo de abajo usa los mismos componentes:
               solo cambian los tokens.
             </p>
-          </Reveal.Item>
+          </RevealItem>
         </Reveal>
 
         {/* KPIs */}
@@ -130,7 +130,7 @@ export default function DemoPage() {
           {kpis.map((k) => {
             const Icon = k.icon;
             return (
-              <Reveal.Item key={k.label}>
+              <RevealItem key={k.label}>
                 <Card className="p-5">
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-sm text-muted">{k.label}</span>
@@ -144,7 +144,7 @@ export default function DemoPage() {
                     className="font-display text-3xl font-semibold"
                   />
                 </Card>
-              </Reveal.Item>
+              </RevealItem>
             );
           })}
         </Reveal>

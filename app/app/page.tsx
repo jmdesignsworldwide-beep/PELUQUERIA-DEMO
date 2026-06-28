@@ -9,7 +9,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getSkin } from "@/lib/skins";
 import { Card } from "@/components/ui/Card";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal, RevealItem } from "@/components/ui/Reveal";
 
 export default async function AppHome() {
   const supabase = createClient();
@@ -37,14 +37,14 @@ export default async function AppHome() {
 
   return (
     <Reveal className="space-y-8">
-      <Reveal.Item>
+      <RevealItem>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border glass px-3 py-1 text-xs text-muted">
           <Sparkles size={13} className="text-metallic" />
           Sesión iniciada · piel amarrada a tu cuenta
         </span>
-      </Reveal.Item>
+      </RevealItem>
 
-      <Reveal.Item>
+      <RevealItem>
         <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
           Bienvenida a{" "}
           <span className="text-accent">{skin.businessName}</span>.
@@ -54,10 +54,10 @@ export default async function AppHome() {
           <span className="text-fg">{skin.label}</span>. Todo el sistema usa el
           vocabulario y los colores de esta piel.
         </p>
-      </Reveal.Item>
+      </RevealItem>
 
       {/* Prueba visual del vocabulario por piel */}
-      <Reveal.Item>
+      <RevealItem>
         <Card className="p-6">
           <p className="mb-4 text-xs uppercase tracking-[0.2em] text-muted">
             Vocabulario de tu piel
@@ -77,10 +77,10 @@ export default async function AppHome() {
             </div>
           </div>
         </Card>
-      </Reveal.Item>
+      </RevealItem>
 
       {/* Teaser de módulos — el layout completo (sidebar) llega en la próxima sub-pieza */}
-      <Reveal.Item>
+      <RevealItem>
         <p className="mb-3 text-sm text-muted">
           Módulos del sistema (navegación completa en la próxima entrega):
         </p>
@@ -97,7 +97,7 @@ export default async function AppHome() {
             );
           })}
         </div>
-      </Reveal.Item>
+      </RevealItem>
     </Reveal>
   );
 }

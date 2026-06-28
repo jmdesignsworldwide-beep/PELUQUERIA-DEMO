@@ -1,9 +1,11 @@
 import type { BusinessType } from "@/lib/skins";
 
 /**
- * Ficha técnica POR PIEL: una sola estructura (jsonb tech_sheet en clients),
- * vestida con campos distintos según business_type. La ficha y el formulario
- * leen esta config — no se duplican tablas ni componentes.
+ * Ficha técnica POR PIEL. Se separa en:
+ *  - PERMANENTE (no cambia cada visita) → vive en clients.tech_sheet y va en el
+ *    formulario de alta (tipo de cabello base, alergias, notas base).
+ *  - POR VISITA (cambia cada vez) → vive en appointments.tech_detail y se ve en
+ *    el HISTORIAL TÉCNICO (timeline). NO va en el formulario de alta.
  */
 export type TechField = {
   key: string;
@@ -13,28 +15,47 @@ export type TechField = {
   placeholder?: string;
 };
 
-const SALON: TechField[] = [
-  { key: "formula_color", label: "Fórmula de color", type: "text", placeholder: "Ej. Igora 7-1 + oxidante 20vol" },
-  { key: "tonos", label: "Tonos usados", type: "text", placeholder: "Ej. Rubio ceniza" },
-  { key: "tratamientos", label: "Tratamientos", type: "text", placeholder: "Ej. Keratina (mar 2026)" },
-  { key: "tipo_cabello", label: "Tipo de cabello", type: "text", placeholder: "Ej. Ondulado, procesado" },
-  { key: "largo_cabello", label: "Largo de cabello", type: "select", options: ["corto", "mediano", "largo"] },
-  { key: "alergias", label: "Alergias / reacciones", type: "text", placeholder: "Ej. Amoníaco" },
+/* ---------- PERMANENTE (formulario de alta) ---------- */
+const PERMANENT_SALON: TechField[] = [
+  { key: "tipo_cabello", label: "Tipo de cabello", type: "select", options: ["Liso", "Ondulado", "Rizado"] },
+  { key: "procesado", label: "Estado del cabello", type: "select", options: ["Virgen", "Procesado", "Teñido"] },
+  { key: "alergias", label: "Alergias / sensibilidades", type: "text", placeholder: "Ej. Amoníaco" },
 ];
 
-const BARBERIA: TechField[] = [
-  { key: "tipo_corte", label: "Tipo de corte", type: "text", placeholder: "Ej. Fade medio + texturizado" },
-  { key: "maquina", label: "Número de máquina / guías", type: "text", placeholder: "Ej. 1.5 a los lados" },
-  { key: "degradado", label: "Tipo de degradado", type: "select", options: ["Bajo", "Medio", "Alto", "Skin fade"] },
-  { key: "barba", label: "Perfilado de barba", type: "text", placeholder: "Ej. Perfilado clásico con navaja" },
-  { key: "notas_estilo", label: "Notas de estilo", type: "text", placeholder: "Ej. Raya marcada al lado" },
-  { key: "alergias", label: "Alergias / sensibilidad", type: "text", placeholder: "Ej. Sensible a la navaja" },
+const PERMANENT_BARBERIA: TechField[] = [
+  { key: "alergias", label: "Alergias / sensibilidades", type: "text", placeholder: "Ej. Sensible a la navaja" },
+  { key: "notas_estilo", label: "Notas de estilo base", type: "text", placeholder: "Ej. Raya marcada al lado" },
 ];
 
-export function techFieldsFor(bt: BusinessType): TechField[] {
-  return bt === "barberia" ? BARBERIA : SALON;
+export function permanentFieldsFor(bt: BusinessType): TechField[] {
+  return bt === "barberia" ? PERMANENT_BARBERIA : PERMANENT_SALON;
 }
 
-export function techSheetTitle(bt: BusinessType): string {
-  return bt === "barberia" ? "Ficha técnica · corte y barba" : "Ficha técnica · color y cabello";
+export function permanentTitle(bt: BusinessType): string {
+  return bt === "barberia" ? "Datos base · sensibilidades" : "Datos base del cabello";
+}
+
+/* ---------- POR VISITA (timeline) ---------- */
+export type VisitDetailField = { key: string; label: string };
+
+const VISIT_SALON: VisitDetailField[] = [
+  { key: "formula_color", label: "Fórmula" },
+  { key: "tono", label: "Tono" },
+  { key: "tratamiento", label: "Tratamiento" },
+];
+
+const VISIT_BARBERIA: VisitDetailField[] = [
+  { key: "tipo_corte", label: "Corte" },
+  { key: "maquina", label: "Máquina / guías" },
+  { key: "barba", label: "Barba" },
+];
+
+export function visitDetailFieldsFor(bt: BusinessType): VisitDetailField[] {
+  return bt === "barberia" ? VISIT_BARBERIA : VISIT_SALON;
+}
+
+export function timelineTitle(bt: BusinessType): string {
+  return bt === "barberia"
+    ? "Historial técnico · cortes y barba"
+    : "Historial técnico · color y tratamientos";
 }

@@ -20,9 +20,10 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 import { formatCedula, formatPhone } from "@/lib/validation";
 import { formatDateRD, formatRD } from "@/lib/format";
-import { techFieldsFor, techSheetTitle } from "@/lib/techSheet";
+import { permanentFieldsFor, permanentTitle } from "@/lib/techSheet";
 import { Avatar } from "./Avatar";
 import { ClientForm } from "./ClientForm";
+import { TechHistory } from "./TechHistory";
 import type { ClientFull } from "@/lib/clients";
 
 function Row({
@@ -52,7 +53,7 @@ export function ClientDetail({ client }: { client: ClientFull }) {
   const v = skin.vocab;
   const router = useRouter();
   const [editing, setEditing] = useState(false);
-  const techFields = techFieldsFor(businessType);
+  const baseFields = permanentFieldsFor(businessType);
 
   return (
     <div className="space-y-6">
@@ -149,16 +150,16 @@ export function ClientDetail({ client }: { client: ClientFull }) {
         <RevealItem>
           <Card className="p-6">
             <p className="mb-4 text-xs uppercase tracking-[0.18em] text-muted">
-              {techSheetTitle(businessType)}
+              {permanentTitle(businessType)}
             </p>
             <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-              {techFields.map((f) => (
+              {baseFields.map((f) => (
                 <div
                   key={f.key}
                   className="flex items-start justify-between gap-4 border-b border-border/60 pb-3"
                 >
                   <span className="text-sm text-muted">{f.label}</span>
-                  <span className="text-right text-sm font-medium capitalize">
+                  <span className="text-right text-sm font-medium">
                     {client.techSheet[f.key] || "—"}
                   </span>
                 </div>
@@ -167,36 +168,9 @@ export function ClientDetail({ client }: { client: ClientFull }) {
           </Card>
         </RevealItem>
 
-        {/* Historial */}
+        {/* Historial técnico: señales útiles + timeline */}
         <RevealItem>
-          <Card className="p-6">
-            <p className="mb-4 text-xs uppercase tracking-[0.18em] text-muted">
-              Historial de servicios · {client.history.length}
-            </p>
-            {client.history.length === 0 ? (
-              <p className="text-sm text-muted">Sin visitas registradas aún.</p>
-            ) : (
-              <div className="space-y-2">
-                {client.history.slice(0, 12).map((h) => (
-                  <div
-                    key={h.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-2/40 px-4 py-2.5"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{h.serviceName}</p>
-                      <p className="truncate text-xs text-muted">
-                        {v.professional} {h.professionalName} ·{" "}
-                        {formatDateRD(h.startsAt)}
-                      </p>
-                    </div>
-                    <span className="tabular shrink-0 text-sm font-medium text-accent">
-                      {formatRD(h.amount)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+          <TechHistory history={client.history} createdAt={client.createdAt} />
         </RevealItem>
 
         {/* Notas */}

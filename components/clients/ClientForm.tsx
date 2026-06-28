@@ -7,7 +7,7 @@ import { useApp } from "@/components/providers/AppProviders";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "./Avatar";
-import { techFieldsFor, techSheetTitle } from "@/lib/techSheet";
+import { permanentFieldsFor, permanentTitle } from "@/lib/techSheet";
 import { formatCedula, formatPhone } from "@/lib/validation";
 import { saveClient, type ClientFormState } from "@/app/app/clientes/actions";
 import type { ClientFull } from "@/lib/clients";
@@ -58,7 +58,7 @@ export function ClientForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.ok, state.id]);
 
-  const techFields = techFieldsFor(businessType);
+  const techFields = permanentFieldsFor(businessType);
   const ts = initial?.techSheet ?? {};
 
   return (
@@ -188,7 +188,7 @@ export function ClientForm({
         {/* Ficha técnica por piel */}
         <div>
           <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted">
-            {techSheetTitle(businessType)}
+            {permanentTitle(businessType)}
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {techFields.map((f) => (

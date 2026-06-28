@@ -22,6 +22,7 @@ export type VisitItem = {
   serviceName: string;
   professionalName: string;
   amount: number;
+  techDetail: Record<string, string>;
 };
 
 export type ClientFull = {
@@ -60,7 +61,7 @@ async function signMany(
 export async function getClients(): Promise<ClientListItem[]> {
   const supabase = createClient();
   await supabase.rpc("ensure_demo_data");
-  await supabase.rpc("enrich_demo_clients");
+  await supabase.rpc("enrich_demo_visits"); // rellena detalle técnico por-visita
 
   const { data: clients } = await supabase
     .from("clients")
@@ -135,7 +136,7 @@ export async function getClient(id: string): Promise<ClientFull | null> {
   const { data: appts } = await supabase
     .from("appointments")
     .select(
-      "id, starts_at, ends_at, amount, is_cancelled, professionals(name), services(name)"
+      "id, starts_at, ends_at, amount, is_cancelled, tech_detail, professionals(name), services(name)"
     )
     .eq("client_id", id)
     .order("starts_at", { ascending: false })
@@ -146,6 +147,7 @@ export async function getClient(id: string): Promise<ClientFull | null> {
         ends_at: string;
         amount: number | string;
         is_cancelled: boolean;
+        tech_detail: Record<string, string> | null;
         professionals: { name: string } | null;
         services: { name: string } | null;
       }[]
@@ -160,6 +162,7 @@ export async function getClient(id: string): Promise<ClientFull | null> {
       serviceName: a.services?.name ?? "—",
       professionalName: a.professionals?.name ?? "—",
       amount: Number(a.amount),
+      techDetail: a.tech_detail ?? {},
     }));
 
   let photoUrl: string | null = null;

@@ -11,9 +11,24 @@ type CookieToSet = { name: string; value: string; options: CookieOptions };
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const path = request.nextUrl.pathname;
+
+  // Sin llaves no se puede autenticar. En vez de tumbar todo el sitio con un
+  // 500, protegemos /app (mandando a /login) y dejamos el resto navegable.
+  if (!supabaseUrl || !supabaseAnon) {
+    if (path.startsWith("/app")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnon,
     {
       cookies: {
         getAll() {
@@ -37,7 +52,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const isProtected = path.startsWith("/app");
 
   if (!user && isProtected) {

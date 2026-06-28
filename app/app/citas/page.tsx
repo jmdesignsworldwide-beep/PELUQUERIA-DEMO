@@ -1,14 +1,16 @@
-"use client";
+import { getAgendaData } from "@/lib/agenda";
+import { AgendaView } from "@/components/agenda/AgendaView";
 
-import { CalendarDays } from "lucide-react";
-import { ComingSoon } from "@/components/app/ComingSoon";
+export const dynamic = "force-dynamic";
 
-export default function CitasPage() {
-  return (
-    <ComingSoon
-      title="Citas"
-      icon={CalendarDays}
-      description="Agenda con vista de día y semana, reprogramar arrastrando, estados (confirmada, en curso, completada) y recordatorios. Se construye en su tanda."
-    />
-  );
+export default async function CitasPage({
+  searchParams,
+}: {
+  searchParams: { date?: string };
+}) {
+  const data = await getAgendaData(searchParams.date);
+  if (!data) {
+    return <p className="text-muted">No se pudo cargar la agenda.</p>;
+  }
+  return <AgendaView data={data} />;
 }

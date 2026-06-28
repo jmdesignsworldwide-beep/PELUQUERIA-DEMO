@@ -19,20 +19,30 @@ export function Calendar({
   value,
   onChange,
   closedWeekdays,
+  minDateStr,
+  maxDateStr,
 }: {
   value: string | null;
   onChange: (dateStr: string) => void;
   closedWeekdays: number[];
+  /** Día mínimo seleccionable. Omitir = sin mínimo (permite pasado). */
+  minDateStr?: string;
+  /** Día máximo seleccionable. Omitir = sin máximo. */
+  maxDateStr?: string;
 }) {
   const today = rdParts(new Date());
-  const [view, setView] = useState({ y: today.y, m: today.m });
+  const initStr = value || `${today.y}-${pad(today.m + 1)}-${pad(today.day)}`;
+  const initParts = initStr.split("-").map(Number);
+  const [view, setView] = useState({ y: initParts[0], m: initParts[1] - 1 });
 
   const first = new Date(Date.UTC(view.y, view.m, 1));
   const startDow = first.getUTCDay();
   const daysInMonth = new Date(Date.UTC(view.y, view.m + 1, 0)).getUTCDate();
 
-  const todayStr = `${today.y}-${pad(today.m + 1)}-${pad(today.day)}`;
-  const isPastMonth = view.y < today.y || (view.y === today.y && view.m <= today.m);
+  const monthStartStr = `${view.y}-${pad(view.m + 1)}-01`;
+  const monthEndStr = `${view.y}-${pad(view.m + 1)}-${pad(daysInMonth)}`;
+  const prevDisabled = !!minDateStr && monthStartStr <= minDateStr;
+  const nextDisabled = !!maxDateStr && monthEndStr >= maxDateStr;
 
   const cells: (number | null)[] = [];
   for (let i = 0; i < startDow; i++) cells.push(null);
@@ -46,7 +56,8 @@ export function Calendar({
   }
   function disabled(d: number) {
     const s = dayStr(d);
-    if (s < todayStr) return true;
+    if (minDateStr && s < minDateStr) return true;
+    if (maxDateStr && s > maxDateStr) return true;
     if (closedWeekdays.includes(weekdayOf(d))) return true;
     return false;
   }
@@ -57,7 +68,7 @@ export function Calendar({
         <button
           type="button"
           onClick={() => setView((v) => (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }))}
-          disabled={isPastMonth}
+          disabled={prevDisabled}
           className="grid h-9 w-9 place-items-center rounded-lg text-muted transition-colors enabled:hover:bg-surface-2 enabled:hover:text-accent disabled:opacity-30"
           aria-label="Mes anterior"
         >
@@ -69,7 +80,8 @@ export function Calendar({
         <button
           type="button"
           onClick={() => setView((v) => (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }))}
-          className="grid h-9 w-9 place-items-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+          disabled={nextDisabled}
+          className="grid h-9 w-9 place-items-center rounded-lg text-muted transition-colors enabled:hover:bg-surface-2 enabled:hover:text-accent disabled:opacity-30"
           aria-label="Mes siguiente"
         >
           <ChevronRight size={18} />

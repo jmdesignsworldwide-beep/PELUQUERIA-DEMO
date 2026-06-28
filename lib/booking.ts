@@ -13,6 +13,8 @@ import type { BusinessType } from "@/lib/skins";
 const SLOT_STEP = 30; // minutos
 const RATE_WINDOW_SEC = 60;
 const RATE_MAX = 6;
+const MIN_LEAD_MIN = 120; // anticipación mínima para reservar (2 h)
+export const BOOKING_WINDOW_DAYS = 90; // ventana de reserva futura (~3 meses)
 
 export type PublicAccount = {
   ownerId: string;
@@ -130,19 +132,38 @@ async function busyOnDate(
   const { y, m, day } = dateStrToParts(dateStr);
   const dayStart = rdWallToInstant(y, m, day, 0).toISOString();
   const dayEnd = rdWallToInstant(y, m, day, 24 * 60).toISOString();
-  const { data } = await svc
-    .from("appointments")
-    .select("professional_id, starts_at, ends_at, is_cancelled")
-    .eq("owner_id", ownerId)
-    .gte("starts_at", dayStart)
-    .lt("starts_at", dayEnd);
-  return (data ?? [])
-    .filter((a) => !a.is_cancelled)
-    .map((a) => ({
+  const [{ data: appts }, { data: blocks }] = await Promise.all([
+    svc
+      .from("appointments")
+      .select("professional_id, starts_at, ends_at, is_cancelled")
+      .eq("owner_id", ownerId)
+      .gte("starts_at", dayStart)
+      .lt("starts_at", dayEnd),
+    svc
+      .from("time_blocks")
+      .select("professional_id, starts_at, ends_at")
+      .eq("owner_id", ownerId)
+      .gte("starts_at", dayStart)
+      .lt("starts_at", dayEnd),
+  ]);
+  const out: ApptBusy[] = [];
+  for (const a of appts ?? []) {
+    if (a.is_cancelled) continue;
+    out.push({
       professional_id: a.professional_id,
       s: new Date(a.starts_at).getTime(),
       e: new Date(a.ends_at).getTime(),
-    }));
+    });
+  }
+  // Los bloqueos (almuerzo, ausencia) también ocupan: el link los respeta.
+  for (const b of blocks ?? []) {
+    out.push({
+      professional_id: b.professional_id,
+      s: new Date(b.starts_at).getTime(),
+      e: new Date(b.ends_at).getTime(),
+    });
+  }
+  return out;
 }
 
 function overlaps(busy: ApptBusy[], proId: string, s: number, e: number) {
@@ -193,7 +214,7 @@ export async function getAvailableSlots(params: {
   if (!eligible.length) return [];
 
   const busy = await busyOnDate(ownerId, dateStr);
-  const nowMs = Date.now() + 15 * 60 * 1000; // margen 15 min
+  const nowMs = Date.now() + MIN_LEAD_MIN * 60 * 1000; // anticipación mínima
 
   const slots: Slot[] = [];
   for (let t = loc.open_min; t + dur <= loc.close_min; t += SLOT_STEP) {
@@ -282,7 +303,13 @@ export async function createPublicBooking(input: {
   const start = rdWallToInstant(y, m, day, input.timeMin);
   const sMs = start.getTime();
   const eMs = sMs + (service.duration_min as number) * 60000;
-  if (sMs < Date.now()) return { ok: false, error: "Ese horario ya pasó." };
+  if (sMs < Date.now() + MIN_LEAD_MIN * 60000)
+    return {
+      ok: false,
+      error: "Reserva con al menos 2 horas de anticipación.",
+    };
+  if (sMs > Date.now() + BOOKING_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+    return { ok: false, error: "Esa fecha está fuera del rango de reserva." };
 
   // ── Resolver profesional (verificar libre) ──
   const busy = await busyOnDate(ownerId, input.dateStr);

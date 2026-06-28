@@ -1,22 +1,35 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
+  CalendarDays,
+  CheckSquare,
   ChevronLeft,
   ChevronRight,
   Lock,
   Plus,
+  Square,
   User,
   X,
 } from "lucide-react";
 import { useApp } from "@/components/providers/AppProviders";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { Avatar } from "@/components/clients/Avatar";
+import { Calendar } from "@/components/booking/Calendar";
 import { cn } from "@/lib/cn";
 import { formatRD } from "@/lib/format";
+import { rdParts } from "@/lib/rd";
 import {
   STATUS_BLOCK,
   STATUS_DOT,
@@ -32,19 +45,15 @@ import {
 } from "@/app/app/citas/actions";
 import type { AgAppt, AgStatus, AgendaData } from "@/lib/agenda";
 
-// Rango de la jornada que se MUESTRA en la rejilla (configurable).
-const RANGE_OPEN = 8 * 60; // 8:00 AM
-const RANGE_CLOSE = 20 * 60; // 8:00 PM
+// Rango mostrado en la rejilla (configurable).
+const RANGE_OPEN = 8 * 60;
+const RANGE_CLOSE = 20 * 60;
 const RANGE = RANGE_CLOSE - RANGE_OPEN;
 const SLOT = 30;
-const MOBILE_PX = 1.4; // alto por minuto en móvil (scrollable)
-
-// Posiciones como % del rango → en escritorio la altura se ajusta a la pantalla
-// (todo el día sin scroll); en móvil el contenedor tiene alto fijo (scrollable).
+const MOBILE_PX = 1.4;
 const topPct = (min: number) => ((min - RANGE_OPEN) / RANGE) * 100;
 const hPct = (dur: number) => (dur / RANGE) * 100;
 
-// Servicios inyectados desde el server (para el formulario walk-in).
 const ServicesContext = createContext<
   { id: string; name: string; price: number }[]
 >([]);
@@ -78,6 +87,20 @@ function dateLabel(dateStr: string) {
   }).format(dt);
 }
 
+/** Minuto del día actual en RD, que avanza solo (línea de "ahora" viva). */
+function useLiveNowMin(active: boolean) {
+  const [min, setMin] = useState(() => rdParts(new Date()).minutesOfDay);
+  useEffect(() => {
+    if (!active) return;
+    const t = setInterval(
+      () => setMin(rdParts(new Date()).minutesOfDay),
+      30000
+    );
+    return () => clearInterval(t);
+  }, [active]);
+  return min;
+}
+
 export function AgendaView({ data }: { data: AgendaData }) {
   const { skin } = useApp();
   const v = skin.vocab;
@@ -87,9 +110,18 @@ export function AgendaView({ data }: { data: AgendaData }) {
   const [walkin, setWalkin] = useState<{ proId: string; startMin: number } | null>(null);
   const [blocking, setBlocking] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [showCal, setShowCal] = useState(false);
   const [mobilePro, setMobilePro] = useState(data.professionals[0]?.id ?? "");
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(data.professionals.map((p) => p.id))
+  );
 
+  const liveNow = useLiveNowMin(data.isToday);
+  const nowMin = data.isToday ? liveNow : null;
   const mobileH = RANGE * MOBILE_PX;
+
   const hourMarks = useMemo(() => {
     const marks: number[] = [];
     for (let h = RANGE_OPEN; h <= RANGE_CLOSE; h += 60) marks.push(h);
@@ -101,15 +133,23 @@ export function AgendaView({ data }: { data: AgendaData }) {
   const blocksByPro = (proId: string) =>
     data.blocks.filter((b) => b.professionalId === proId);
 
+  const shownPros = data.professionals.filter((p) => selected.has(p.id));
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2600);
+  }
+
   async function onDrop(proId: string, startMin: number, apptId: string) {
     setDraggingId(null);
+    setDragOver(null);
     const res = await moveAppointment({
       apptId,
       professionalId: proId,
       startMin,
       dateStr: data.dateStr,
     });
-    if (res.error) alert(res.error);
+    if (res.error) showToast(res.error);
     else router.refresh();
   }
 
@@ -117,26 +157,36 @@ export function AgendaView({ data }: { data: AgendaData }) {
     router.push(`/app/citas?date=${newDate}`);
   }
 
-  // ── Columna de un profesional (posiciones en % → cabe sin scroll en PC) ──
+  // ── Columna de un profesional ──
   function ProColumn({ proId, compact }: { proId: string; compact: boolean }) {
     const slots: number[] = [];
     for (let t = RANGE_OPEN; t < RANGE_CLOSE; t += SLOT) slots.push(t);
+    const appts = apptsByPro(proId);
     return (
       <div className="relative h-full">
-        {/* drop targets / slots clicables */}
-        {slots.map((t) => (
-          <div
-            key={t}
-            onClick={() => setWalkin({ proId, startMin: t })}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              const id = e.dataTransfer.getData("text/plain");
-              if (id) onDrop(proId, t, id);
-            }}
-            className="absolute inset-x-0 cursor-pointer border-t border-border/40 transition-colors hover:bg-surface-2/40"
-            style={{ top: `${topPct(t)}%`, height: `${hPct(SLOT)}%` }}
-          />
-        ))}
+        {slots.map((t) => {
+          const key = `${proId}:${t}`;
+          return (
+            <div
+              key={t}
+              onClick={() => setWalkin({ proId, startMin: t })}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragOver !== key) setDragOver(key);
+              }}
+              onDragLeave={() => dragOver === key && setDragOver(null)}
+              onDrop={(e) => {
+                const id = e.dataTransfer.getData("text/plain");
+                if (id) onDrop(proId, t, id);
+              }}
+              className={cn(
+                "absolute inset-x-0 cursor-pointer border-t border-border/40 transition-colors",
+                dragOver === key ? "bg-accent/20" : "hover:bg-surface-2/40"
+              )}
+              style={{ top: `${topPct(t)}%`, height: `${hPct(SLOT)}%` }}
+            />
+          );
+        })}
 
         {/* bloqueos */}
         {blocksByPro(proId).map((b) => (
@@ -165,245 +215,466 @@ export function AgendaView({ data }: { data: AgendaData }) {
           </div>
         ))}
 
-        {/* citas */}
-        {apptsByPro(proId).map((a) => (
-          <button
+        {/* citas (bloques premium) */}
+        {appts.map((a, i) => (
+          <ApptBlock
             key={a.id}
-            draggable
+            appt={a}
+            index={i}
+            compact={compact}
+            nowMin={nowMin}
+            dragging={draggingId === a.id}
             onDragStart={(e) => {
               e.dataTransfer.setData("text/plain", a.id);
+              e.dataTransfer.effectAllowed = "move";
               setDraggingId(a.id);
             }}
-            onDragEnd={() => setDraggingId(null)}
-            onClick={() => setDetail(a)}
-            title={`${a.clientName} · ${a.serviceName} · ${fmtMin(a.startMin)}`}
-            className={cn(
-              "absolute inset-x-1 z-20 overflow-hidden rounded-md border-l-[3px] px-1.5 text-left leading-tight shadow-sm transition-opacity",
-              compact ? "py-0.5" : "py-1",
-              STATUS_BLOCK[a.status],
-              draggingId === a.id && "opacity-40"
-            )}
-            style={{
-              top: `calc(${topPct(a.startMin)}% + 1px)`,
-              height: `calc(${hPct(a.endMin - a.startMin)}% - 2px)`,
-              minHeight: 20,
+            onDragEnd={() => {
+              setDraggingId(null);
+              setDragOver(null);
             }}
-          >
-            <p className="truncate text-[11px] font-medium leading-tight">
-              {a.clientName}
-            </p>
-            <p className="truncate text-[10px] leading-tight text-muted">
-              {fmtMin(a.startMin)} · {a.serviceName}
-            </p>
-          </button>
+            onClick={() => setDetail(a)}
+          />
         ))}
 
-        {/* línea de ahora */}
-        {data.nowMin !== null &&
-          data.nowMin >= RANGE_OPEN &&
-          data.nowMin <= RANGE_CLOSE && (
-            <div
-              className="pointer-events-none absolute inset-x-0 z-30 flex items-center"
-              style={{ top: `${topPct(data.nowMin)}%` }}
-            >
-              <span className="h-2 w-2 -translate-x-1 rounded-full bg-accent" />
-              <span className="h-px flex-1 bg-accent/70" />
-            </div>
-          )}
+        {/* línea de ahora viva */}
+        {nowMin !== null && nowMin >= RANGE_OPEN && nowMin <= RANGE_CLOSE && (
+          <div
+            className="pointer-events-none absolute inset-x-0 z-30 flex items-center"
+            style={{ top: `${topPct(nowMin)}%` }}
+          >
+            <span className="relative flex h-2.5 w-2.5 -translate-x-1">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+            </span>
+            <span className="h-[2px] flex-1 bg-accent/70" />
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <ServicesContext.Provider value={data.services}>
-    <div className="space-y-5">
-      {/* Encabezado */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Agenda
-          </h1>
-          {data.locationName && (
-            <p className="mt-0.5 text-sm text-muted">{data.locationName}</p>
-          )}
-        </div>
-        <Button onClick={() => setWalkin({ proId: data.professionals[0]?.id ?? "", startMin: data.nowMin ? Math.round(data.nowMin / 30) * 30 : data.openMin })}>
-          <Plus size={18} /> Cita rápida
-        </Button>
-      </div>
-
-      {/* Selector de día */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-border glass p-2">
-        <button
-          onClick={() => goDate(shiftDate(data.dateStr, -1))}
-          className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-accent"
-          aria-label="Día anterior"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <div className="text-center">
-          <p className="font-display text-base font-semibold capitalize">
-            {dateLabel(data.dateStr)}
-          </p>
-          {!data.isToday && (
-            <button
-              onClick={() => router.push("/app/citas")}
-              className="text-xs text-accent hover:underline"
-            >
-              Volver a hoy
-            </button>
-          )}
-        </div>
-        <button
-          onClick={() => goDate(shiftDate(data.dateStr, 1))}
-          className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-accent"
-          aria-label="Día siguiente"
-        >
-          <ChevronRight size={18} />
-        </button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button variant="secondary" size="sm" onClick={() => setBlocking(true)}>
-          <Lock size={15} /> Bloquear horario
-        </Button>
-        {/* Leyenda */}
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
-          {STATUS_ORDER.map((s) => (
-            <span key={s} className="inline-flex items-center gap-1.5">
-              <span className={cn("h-2 w-2 rounded-full", STATUS_DOT[s])} />
-              {STATUS_LABEL[s]}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ───── DESKTOP: rejilla por profesional (todo el día sin scroll) ───── */}
-      <div className="hidden rounded-2xl border border-border glass p-3 lg:block">
-        {/* La altura se ajusta a la pantalla: 8am–8pm caben sin scroll. */}
-        <div className="flex h-[calc(100dvh-17rem)] min-h-[420px]">
-          {/* encabezados + eje en una columna fija */}
-          <div className="flex w-12 shrink-0 flex-col">
-            <div className="mb-1 h-9 shrink-0" />
-            <div className="relative flex-1">
-              {hourMarks.map((h) => (
-                <span
-                  key={h}
-                  className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
-                  style={{ top: `${topPct(h)}%` }}
-                >
-                  {fmtMin(h)}
-                </span>
-              ))}
-            </div>
+      <div className="space-y-4">
+        {/* Encabezado */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              Agenda
+            </h1>
+            {data.locationName && (
+              <p className="mt-0.5 text-sm text-muted">{data.locationName}</p>
+            )}
           </div>
-          {/* columnas */}
-          <div className="grid flex-1 auto-cols-fr grid-flow-col">
-            {data.professionals.map((p) => (
-              <div
-                key={p.id}
-                className="flex min-w-0 flex-col border-l border-border px-1"
+          <Button
+            onClick={() =>
+              setWalkin({
+                proId: shownPros[0]?.id ?? data.professionals[0]?.id ?? "",
+                startMin: nowMin ? Math.round(nowMin / 30) * 30 : data.openMin,
+              })
+            }
+          >
+            <Plus size={18} /> Cita rápida
+          </Button>
+        </div>
+
+        {/* Selector de día + mini-calendario */}
+        <div className="relative flex items-center justify-between gap-3 rounded-xl border border-border glass p-2">
+          <button
+            onClick={() => goDate(shiftDate(data.dateStr, -1))}
+            className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-accent"
+            aria-label="Día anterior"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => setShowCal((s) => !s)}
+            className="flex items-center gap-2 rounded-lg px-3 py-1 hover:bg-surface-2"
+          >
+            <CalendarDays size={16} className="text-accent" />
+            <span className="font-display text-base font-semibold capitalize">
+              {dateLabel(data.dateStr)}
+            </span>
+          </button>
+          <div className="flex items-center gap-1">
+            {!data.isToday && (
+              <button
+                onClick={() => router.push("/app/citas")}
+                className="rounded-lg px-2 py-1 text-xs text-accent hover:bg-surface-2"
               >
-                <div className="mb-1 h-9 shrink-0 text-center">
-                  <p className="truncate text-sm font-medium leading-tight">
-                    {p.name}
-                  </p>
-                  <p className="truncate text-[11px] leading-tight text-muted">
-                    {p.specialty}
-                  </p>
-                </div>
-                <div className="flex-1">
-                  <ProColumn proId={p.id} compact />
-                </div>
-              </div>
+                Hoy
+              </button>
+            )}
+            <button
+              onClick={() => goDate(shiftDate(data.dateStr, 1))}
+              className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-accent"
+              aria-label="Día siguiente"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showCal && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2"
+              >
+                <Calendar
+                  value={data.dateStr}
+                  closedWeekdays={[]}
+                  onChange={(d) => {
+                    setShowCal(false);
+                    goDate(d);
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Barra de acciones + leyenda */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <Button variant="secondary" size="sm" onClick={() => setBlocking(true)}>
+            <Lock size={15} /> Bloquear horario
+          </Button>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+            {STATUS_ORDER.map((s) => (
+              <span key={s} className="inline-flex items-center gap-1.5">
+                <span className={cn("h-2 w-2 rounded-full", STATUS_DOT[s])} />
+                {STATUS_LABEL[s]}
+              </span>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* ───── MÓVIL: un profesional a la vez ───── */}
-      <div className="lg:hidden">
-        <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
-          {data.professionals.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setMobilePro(p.id)}
-              className={cn(
-                "shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors",
-                mobilePro === p.id
-                  ? "border-accent/50 bg-accent-soft/60 text-accent"
-                  : "border-border text-muted"
-              )}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-        <div className="rounded-2xl border border-border glass p-3">
-          <div className="flex" style={{ height: mobileH }}>
-            <div className="relative w-12 shrink-0">
-              {hourMarks.map((h) => (
-                <span
-                  key={h}
-                  className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
-                  style={{ top: `${topPct(h)}%` }}
+        {/* ───── DESKTOP: barra lateral de empleados + rejilla ───── */}
+        <div className="hidden gap-3 lg:flex">
+          {/* Barra lateral */}
+          <aside className="flex max-h-[calc(100dvh-15rem)] w-60 shrink-0 flex-col rounded-2xl border border-border glass p-2">
+            <div className="mb-1 flex items-center justify-between px-2 py-1">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted">
+                {v.professionalPlural}
+              </span>
+              <div className="flex gap-1 text-xs">
+                <button
+                  onClick={() => setSelected(new Set(data.professionals.map((p) => p.id)))}
+                  className="text-accent hover:underline"
                 >
-                  {fmtMin(h)}
-                </span>
-              ))}
+                  Todos
+                </button>
+                <span className="text-muted">·</span>
+                <button
+                  onClick={() => setSelected(new Set())}
+                  className="text-muted hover:text-fg"
+                >
+                  Ninguno
+                </button>
+              </div>
             </div>
-            <div className="flex-1 border-l border-border px-1">
-              {mobilePro && <ProColumn proId={mobilePro} compact={false} />}
+            <div className="flex-1 space-y-1 overflow-y-auto">
+              {data.professionals.map((p) => {
+                const sel = selected.has(p.id);
+                const count = apptsByPro(p.id).filter((a) => a.status !== "cancelada").length;
+                const busyNow =
+                  nowMin !== null &&
+                  apptsByPro(p.id).some(
+                    (a) =>
+                      a.status !== "cancelada" &&
+                      a.startMin <= nowMin &&
+                      a.endMin > nowMin
+                  );
+                return (
+                  <div
+                    key={p.id}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 transition-colors",
+                      sel ? "bg-accent-soft/50" : "hover:bg-surface-2"
+                    )}
+                    onClick={() => setSelected(new Set([p.id]))}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelected((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(p.id)) next.delete(p.id);
+                          else next.add(p.id);
+                          return next;
+                        });
+                      }}
+                      className="shrink-0 text-accent"
+                      aria-label="Alternar"
+                    >
+                      {sel ? <CheckSquare size={18} /> : <Square size={18} className="text-muted" />}
+                    </button>
+                    <Avatar name={p.name} size={34} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium leading-tight">
+                        {p.name}
+                      </p>
+                      <p className="truncate text-[11px] leading-tight text-muted">
+                        {p.specialty}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end">
+                      <span
+                        className={cn(
+                          "h-2 w-2 rounded-full",
+                          busyNow ? "bg-amber-500" : "bg-emerald-500"
+                        )}
+                      />
+                      <span className="mt-0.5 text-[10px] tabular text-muted">
+                        {count}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </aside>
+
+          {/* Rejilla */}
+          <div className="min-w-0 flex-1 rounded-2xl border border-border glass p-3">
+            {shownPros.length === 0 ? (
+              <div className="grid h-[calc(100dvh-17rem)] place-items-center text-sm text-muted">
+                Selecciona uno o varios {v.professionalPlural.toLowerCase()} a la izquierda.
+              </div>
+            ) : (
+              <div className="flex h-[calc(100dvh-17rem)] min-h-[420px]">
+                <div className="flex w-12 shrink-0 flex-col">
+                  <div className="mb-1 h-9 shrink-0" />
+                  <div className="relative flex-1">
+                    {hourMarks.map((h) => (
+                      <span
+                        key={h}
+                        className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
+                        style={{ top: `${topPct(h)}%` }}
+                      >
+                        {fmtMin(h)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid flex-1 auto-cols-fr grid-flow-col">
+                  <AnimatePresence initial={false}>
+                    {shownPros.map((p) => (
+                      <motion.div
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex min-w-0 flex-col border-l border-border px-1"
+                      >
+                        <div className="mb-1 flex h-9 shrink-0 items-center justify-center gap-1.5 text-center">
+                          <Avatar name={p.name} size={22} />
+                          <p className="truncate text-sm font-medium leading-tight">
+                            {p.name.split(" ")[0]}
+                          </p>
+                        </div>
+                        <div className="flex-1">
+                          <ProColumn proId={p.id} compact />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ───── MÓVIL: un profesional a la vez ───── */}
+        <div className="lg:hidden">
+          <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+            {data.professionals.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setMobilePro(p.id)}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",
+                  mobilePro === p.id
+                    ? "border-accent/50 bg-accent-soft/60 text-accent"
+                    : "border-border text-muted"
+                )}
+              >
+                <Avatar name={p.name} size={22} />
+                {p.name.split(" ")[0]}
+              </button>
+            ))}
+          </div>
+          <div className="rounded-2xl border border-border glass p-3">
+            <div className="flex" style={{ height: mobileH }}>
+              <div className="relative w-12 shrink-0">
+                {hourMarks.map((h) => (
+                  <span
+                    key={h}
+                    className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
+                    style={{ top: `${topPct(h)}%` }}
+                  >
+                    {fmtMin(h)}
+                  </span>
+                ))}
+              </div>
+              <div className="flex-1 border-l border-border px-1">
+                {mobilePro && <ProColumn proId={mobilePro} compact={false} />}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ───── Modales ───── */}
-      {detail && (
-        <DetailModal
-          appt={detail}
-          professionals={data.professionals}
+        {/* Toast elegante */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed inset-x-0 bottom-6 z-50 mx-auto flex w-fit items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm shadow-layered"
+            >
+              <AlertCircle size={16} className="text-amber-500" /> {toast}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {detail && (
+          <DetailModal
+            appt={detail}
+            professionals={data.professionals}
+            dateStr={data.dateStr}
+            openMin={data.openMin}
+            closeMin={data.closeMin}
+            vocabProfessional={v.professional}
+            onClose={() => setDetail(null)}
+            onChanged={() => {
+              setDetail(null);
+              router.refresh();
+            }}
+          />
+        )}
+
+        <WalkinModal
+          open={!!walkin}
+          preset={walkin}
           dateStr={data.dateStr}
+          professionals={data.professionals}
           openMin={data.openMin}
           closeMin={data.closeMin}
-          vocabProfessional={v.professional}
-          onClose={() => setDetail(null)}
-          onChanged={() => {
-            setDetail(null);
+          onClose={() => setWalkin(null)}
+          onCreated={() => {
+            setWalkin(null);
             router.refresh();
           }}
         />
-      )}
 
-      <WalkinModal
-        open={!!walkin}
-        preset={walkin}
-        dateStr={data.dateStr}
-        professionals={data.professionals}
-        openMin={data.openMin}
-        closeMin={data.closeMin}
-        onClose={() => setWalkin(null)}
-        onCreated={() => {
-          setWalkin(null);
-          router.refresh();
-        }}
-      />
-
-      <BlockModal
-        open={blocking}
-        dateStr={data.dateStr}
-        professionals={data.professionals}
-        openMin={data.openMin}
-        closeMin={data.closeMin}
-        onClose={() => setBlocking(false)}
-        onCreated={() => {
-          setBlocking(false);
-          router.refresh();
-        }}
-      />
-    </div>
+        <BlockModal
+          open={blocking}
+          dateStr={data.dateStr}
+          professionals={data.professionals}
+          openMin={data.openMin}
+          closeMin={data.closeMin}
+          onClose={() => setBlocking(false)}
+          onCreated={() => {
+            setBlocking(false);
+            router.refresh();
+          }}
+        />
+      </div>
     </ServicesContext.Provider>
+  );
+}
+
+/* ───────── Bloque de cita premium ───────── */
+function ApptBlock({
+  appt,
+  index,
+  compact,
+  nowMin,
+  dragging,
+  onDragStart,
+  onDragEnd,
+  onClick,
+}: {
+  appt: AgAppt;
+  index: number;
+  compact: boolean;
+  nowMin: number | null;
+  dragging: boolean;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
+  onClick: () => void;
+}) {
+  const isLive = appt.status === "en_proceso";
+  const progress =
+    isLive && nowMin !== null
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            ((nowMin - appt.startMin) / (appt.endMin - appt.startMin)) * 100
+          )
+        )
+      : null;
+
+  return (
+    <motion.button
+      layout
+      draggable
+      onDragStart={onDragStart as unknown as (e: unknown) => void}
+      onDragEnd={onDragEnd}
+      onClick={onClick}
+      title={`${appt.clientName} · ${appt.serviceName} · ${fmtMin(appt.startMin)}`}
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: dragging ? 0.4 : 1, scale: 1 }}
+      transition={{
+        delay: Math.min(index * 0.03, 0.3),
+        type: "spring",
+        stiffness: 320,
+        damping: 26,
+      }}
+      whileHover={{ scale: 1.02, zIndex: 40 }}
+      className={cn(
+        "group absolute inset-x-1 z-20 cursor-grab overflow-hidden rounded-lg shadow-sm active:cursor-grabbing",
+        compact ? "px-1.5 py-0.5" : "px-2 py-1",
+        STATUS_BLOCK[appt.status],
+        isLive && "shadow-glow ring-1 ring-accent/40",
+        dragging && "shadow-layered"
+      )}
+      style={{
+        top: `calc(${topPct(appt.startMin)}% + 1px)`,
+        height: `calc(${hPct(appt.endMin - appt.startMin)}% - 2px)`,
+        minHeight: 22,
+      }}
+    >
+      {isLive && (
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-accent/50"
+          animate={{ opacity: [0.25, 0.7, 0.25] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <div className="relative flex items-center gap-1.5">
+        <Avatar name={appt.clientName} size={compact ? 16 : 20} />
+        <span className="truncate text-[11px] font-semibold leading-tight">
+          {appt.clientName}
+        </span>
+      </div>
+      <p className="relative truncate text-[10px] leading-tight text-muted">
+        {fmtMin(appt.startMin)} · {appt.serviceName}
+      </p>
+      {progress !== null && (
+        <span
+          className="absolute bottom-0 left-0 h-[3px] rounded-r bg-accent"
+          style={{ width: `${progress}%` }}
+        />
+      )}
+    </motion.button>
   );
 }
 
@@ -770,4 +1041,3 @@ function BlockModal({
     </Modal>
   );
 }
-

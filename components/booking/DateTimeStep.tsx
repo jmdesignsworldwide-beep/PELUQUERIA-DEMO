@@ -5,8 +5,16 @@ import { Loader2 } from "lucide-react";
 import { Calendar } from "./Calendar";
 import { cn } from "@/lib/cn";
 import { formatTimeRD } from "@/lib/format";
+import { rdTodayDateStr } from "@/lib/rd";
 import { slotsAction } from "@/app/reservar/[slug]/actions";
 import type { Slot } from "@/lib/booking";
+
+function addDaysStr(dateStr: string, days: number) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+}
 
 export function DateTimeStep({
   slug,
@@ -52,6 +60,8 @@ export function DateTimeStep({
         value={dateStr}
         onChange={setDateStr}
         closedWeekdays={closedWeekdays}
+        minDateStr={rdTodayDateStr()}
+        maxDateStr={addDaysStr(rdTodayDateStr(), 90)}
       />
 
       <div>

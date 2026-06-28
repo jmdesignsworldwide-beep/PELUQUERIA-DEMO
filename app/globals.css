@@ -85,6 +85,40 @@
   --aurora-strength: 0.5;
 }
 
+/* ===================== ◆ NEUTRAL (login pre-piel) ===================== */
+
+[data-skin="neutral"][data-theme="light"] {
+  --bg: 245 243 239;
+  --surface: 255 254 251;
+  --surface-2: 238 235 230;
+  --border: 224 219 211;
+  --fg: 30 29 31;
+  --muted: 110 107 102;
+  --accent: 156 124 64;           /* dorado champagne sobrio */
+  --accent-soft: 230 222 208;
+  --accent-contrast: 253 251 247;
+  --metallic: 156 124 64;
+  --aurora-1: 206 180 130;
+  --aurora-2: 175 178 188;
+  --aurora-strength: 0.3;
+}
+
+[data-skin="neutral"][data-theme="dark"] {
+  --bg: 16 16 19;                 /* near-black neutral */
+  --surface: 24 24 28;
+  --surface-2: 33 33 38;
+  --border: 52 52 59;
+  --fg: 240 238 233;
+  --muted: 150 148 143;
+  --accent: 212 180 128;          /* champagne */
+  --accent-soft: 60 52 40;
+  --accent-contrast: 20 18 14;
+  --metallic: 212 180 128;
+  --aurora-1: 200 170 120;
+  --aurora-2: 120 122 138;
+  --aurora-strength: 0.42;
+}
+
 /* ===================== BASE ===================== */
 
 * {

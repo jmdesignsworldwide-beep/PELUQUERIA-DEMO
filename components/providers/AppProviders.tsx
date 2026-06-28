@@ -11,6 +11,9 @@ import {
 import { BusinessType, Skin, getSkin } from "@/lib/skins";
 import { THEME_KEY, ThemeMode } from "@/lib/theme";
 
+/** Piel para el atributo data-skin. "neutral" es solo para el login pre-piel. */
+export type SkinAttr = BusinessType | "neutral";
+
 type AppContextValue = {
   skin: Skin;
   businessType: BusinessType;
@@ -29,12 +32,14 @@ export function AppProviders({
   allowSkinSwitch = false,
 }: {
   children: React.ReactNode;
-  initialSkin?: BusinessType;
+  initialSkin?: SkinAttr;
   allowSkinSwitch?: boolean;
 }) {
-  const [businessType, setBusinessTypeState] =
-    useState<BusinessType>(initialSkin);
+  const [skinAttr, setSkinAttr] = useState<SkinAttr>(initialSkin);
   const [theme, setThemeState] = useState<ThemeMode>("dark");
+
+  // Para vocabulario, "neutral" cae a salon (el login no usa vocabulario).
+  const businessType: BusinessType = skinAttr === "neutral" ? "salon" : skinAttr;
 
   // Carga inicial del tema persistido (el script en <head> ya lo aplicó al DOM;
   // aquí sincronizamos el estado de React con lo que el DOM ya muestra).
@@ -52,15 +57,15 @@ export function AppProviders({
   // Aplica skin + theme al <html> y persiste el tema.
   useEffect(() => {
     const root = document.documentElement;
-    root.setAttribute("data-skin", businessType);
+    root.setAttribute("data-skin", skinAttr);
     root.setAttribute("data-theme", theme);
     root.style.colorScheme = theme;
     window.localStorage.setItem(THEME_KEY, theme);
-  }, [businessType, theme]);
+  }, [skinAttr, theme]);
 
   const setBusinessType = useCallback(
     (t: BusinessType) => {
-      if (allowSkinSwitch) setBusinessTypeState(t);
+      if (allowSkinSwitch) setSkinAttr(t);
     },
     [allowSkinSwitch]
   );

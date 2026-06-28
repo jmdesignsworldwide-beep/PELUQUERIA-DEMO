@@ -32,8 +32,17 @@ import {
 } from "@/app/app/citas/actions";
 import type { AgAppt, AgStatus, AgendaData } from "@/lib/agenda";
 
-const PX = 56 / 30; // px por minuto
+// Rango de la jornada que se MUESTRA en la rejilla (configurable).
+const RANGE_OPEN = 8 * 60; // 8:00 AM
+const RANGE_CLOSE = 20 * 60; // 8:00 PM
+const RANGE = RANGE_CLOSE - RANGE_OPEN;
 const SLOT = 30;
+const MOBILE_PX = 1.4; // alto por minuto en móvil (scrollable)
+
+// Posiciones como % del rango → en escritorio la altura se ajusta a la pantalla
+// (todo el día sin scroll); en móvil el contenedor tiene alto fijo (scrollable).
+const topPct = (min: number) => ((min - RANGE_OPEN) / RANGE) * 100;
+const hPct = (dur: number) => (dur / RANGE) * 100;
 
 // Servicios inyectados desde el server (para el formulario walk-in).
 const ServicesContext = createContext<
@@ -80,13 +89,12 @@ export function AgendaView({ data }: { data: AgendaData }) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [mobilePro, setMobilePro] = useState(data.professionals[0]?.id ?? "");
 
-  const contentH = (data.closeMin - data.openMin) * PX;
+  const mobileH = RANGE * MOBILE_PX;
   const hourMarks = useMemo(() => {
     const marks: number[] = [];
-    const startH = Math.ceil(data.openMin / 60) * 60;
-    for (let h = startH; h <= data.closeMin; h += 60) marks.push(h);
+    for (let h = RANGE_OPEN; h <= RANGE_CLOSE; h += 60) marks.push(h);
     return marks;
-  }, [data.openMin, data.closeMin]);
+  }, []);
 
   const apptsByPro = (proId: string) =>
     data.appts.filter((a) => a.professionalId === proId);
@@ -109,12 +117,12 @@ export function AgendaView({ data }: { data: AgendaData }) {
     router.push(`/app/citas?date=${newDate}`);
   }
 
-  // ── Columna de un profesional ──
-  function ProColumn({ proId }: { proId: string }) {
+  // ── Columna de un profesional (posiciones en % → cabe sin scroll en PC) ──
+  function ProColumn({ proId, compact }: { proId: string; compact: boolean }) {
     const slots: number[] = [];
-    for (let t = data.openMin; t < data.closeMin; t += SLOT) slots.push(t);
+    for (let t = RANGE_OPEN; t < RANGE_CLOSE; t += SLOT) slots.push(t);
     return (
-      <div className="relative" style={{ height: contentH }}>
+      <div className="relative h-full">
         {/* drop targets / slots clicables */}
         {slots.map((t) => (
           <div
@@ -126,7 +134,7 @@ export function AgendaView({ data }: { data: AgendaData }) {
               if (id) onDrop(proId, t, id);
             }}
             className="absolute inset-x-0 cursor-pointer border-t border-border/40 transition-colors hover:bg-surface-2/40"
-            style={{ top: (t - data.openMin) * PX, height: SLOT * PX }}
+            style={{ top: `${topPct(t)}%`, height: `${hPct(SLOT)}%` }}
           />
         ))}
 
@@ -134,10 +142,11 @@ export function AgendaView({ data }: { data: AgendaData }) {
         {blocksByPro(proId).map((b) => (
           <div
             key={b.id}
-            className="absolute inset-x-1 z-10 flex items-center justify-between gap-1 rounded-lg border border-dashed border-border bg-surface-2/80 px-2 text-[11px] text-muted"
+            className="absolute inset-x-1 z-10 flex items-center justify-between gap-1 overflow-hidden rounded-md border border-dashed border-border bg-surface-2/80 px-1.5 text-[11px] text-muted"
             style={{
-              top: (b.startMin - data.openMin) * PX,
-              height: Math.max((b.endMin - b.startMin) * PX, 24),
+              top: `${topPct(b.startMin)}%`,
+              height: `${hPct(b.endMin - b.startMin)}%`,
+              minHeight: 18,
             }}
           >
             <span className="inline-flex items-center gap-1 truncate">
@@ -167,20 +176,23 @@ export function AgendaView({ data }: { data: AgendaData }) {
             }}
             onDragEnd={() => setDraggingId(null)}
             onClick={() => setDetail(a)}
+            title={`${a.clientName} · ${a.serviceName} · ${fmtMin(a.startMin)}`}
             className={cn(
-              "absolute inset-x-1 z-20 overflow-hidden rounded-lg border-l-[3px] px-2 py-1 text-left shadow-sm transition-opacity",
+              "absolute inset-x-1 z-20 overflow-hidden rounded-md border-l-[3px] px-1.5 text-left leading-tight shadow-sm transition-opacity",
+              compact ? "py-0.5" : "py-1",
               STATUS_BLOCK[a.status],
               draggingId === a.id && "opacity-40"
             )}
             style={{
-              top: (a.startMin - data.openMin) * PX + 1,
-              height: Math.max((a.endMin - a.startMin) * PX - 2, 26),
+              top: `calc(${topPct(a.startMin)}% + 1px)`,
+              height: `calc(${hPct(a.endMin - a.startMin)}% - 2px)`,
+              minHeight: 20,
             }}
           >
-            <p className="truncate text-xs font-medium leading-tight">
+            <p className="truncate text-[11px] font-medium leading-tight">
               {a.clientName}
             </p>
-            <p className="truncate text-[11px] leading-tight text-muted">
+            <p className="truncate text-[10px] leading-tight text-muted">
               {fmtMin(a.startMin)} · {a.serviceName}
             </p>
           </button>
@@ -188,11 +200,11 @@ export function AgendaView({ data }: { data: AgendaData }) {
 
         {/* línea de ahora */}
         {data.nowMin !== null &&
-          data.nowMin >= data.openMin &&
-          data.nowMin <= data.closeMin && (
+          data.nowMin >= RANGE_OPEN &&
+          data.nowMin <= RANGE_CLOSE && (
             <div
               className="pointer-events-none absolute inset-x-0 z-30 flex items-center"
-              style={{ top: (data.nowMin - data.openMin) * PX }}
+              style={{ top: `${topPct(data.nowMin)}%` }}
             >
               <span className="h-2 w-2 -translate-x-1 rounded-full bg-accent" />
               <span className="h-px flex-1 bg-accent/70" />
@@ -266,30 +278,43 @@ export function AgendaView({ data }: { data: AgendaData }) {
         </div>
       </div>
 
-      {/* ───── DESKTOP: rejilla por profesional ───── */}
+      {/* ───── DESKTOP: rejilla por profesional (todo el día sin scroll) ───── */}
       <div className="hidden rounded-2xl border border-border glass p-3 lg:block">
-        <div className="flex">
-          {/* eje de horas */}
-          <div className="relative w-14 shrink-0" style={{ height: contentH }}>
-            {hourMarks.map((h) => (
-              <span
-                key={h}
-                className="absolute right-2 -translate-y-2 text-[11px] tabular text-muted"
-                style={{ top: (h - data.openMin) * PX }}
-              >
-                {fmtMin(h)}
-              </span>
-            ))}
+        {/* La altura se ajusta a la pantalla: 8am–8pm caben sin scroll. */}
+        <div className="flex h-[calc(100dvh-17rem)] min-h-[420px]">
+          {/* encabezados + eje en una columna fija */}
+          <div className="flex w-12 shrink-0 flex-col">
+            <div className="mb-1 h-9 shrink-0" />
+            <div className="relative flex-1">
+              {hourMarks.map((h) => (
+                <span
+                  key={h}
+                  className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
+                  style={{ top: `${topPct(h)}%` }}
+                >
+                  {fmtMin(h)}
+                </span>
+              ))}
+            </div>
           </div>
           {/* columnas */}
           <div className="grid flex-1 auto-cols-fr grid-flow-col">
             {data.professionals.map((p) => (
-              <div key={p.id} className="min-w-[150px] border-l border-border px-1">
-                <div className="sticky top-0 z-40 mb-1 bg-surface/60 pb-1 text-center backdrop-blur">
-                  <p className="truncate text-sm font-medium">{p.name}</p>
-                  <p className="truncate text-[11px] text-muted">{p.specialty}</p>
+              <div
+                key={p.id}
+                className="flex min-w-0 flex-col border-l border-border px-1"
+              >
+                <div className="mb-1 h-9 shrink-0 text-center">
+                  <p className="truncate text-sm font-medium leading-tight">
+                    {p.name}
+                  </p>
+                  <p className="truncate text-[11px] leading-tight text-muted">
+                    {p.specialty}
+                  </p>
                 </div>
-                <ProColumn proId={p.id} />
+                <div className="flex-1">
+                  <ProColumn proId={p.id} compact />
+                </div>
               </div>
             ))}
           </div>
@@ -315,20 +340,20 @@ export function AgendaView({ data }: { data: AgendaData }) {
           ))}
         </div>
         <div className="rounded-2xl border border-border glass p-3">
-          <div className="flex">
-            <div className="relative w-14 shrink-0" style={{ height: contentH }}>
+          <div className="flex" style={{ height: mobileH }}>
+            <div className="relative w-12 shrink-0">
               {hourMarks.map((h) => (
                 <span
                   key={h}
-                  className="absolute right-2 -translate-y-2 text-[11px] tabular text-muted"
-                  style={{ top: (h - data.openMin) * PX }}
+                  className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
+                  style={{ top: `${topPct(h)}%` }}
                 >
                   {fmtMin(h)}
                 </span>
               ))}
             </div>
             <div className="flex-1 border-l border-border px-1">
-              {mobilePro && <ProColumn proId={mobilePro} />}
+              {mobilePro && <ProColumn proId={mobilePro} compact={false} />}
             </div>
           </div>
         </div>

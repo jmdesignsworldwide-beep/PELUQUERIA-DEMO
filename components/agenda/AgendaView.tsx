@@ -114,8 +114,9 @@ export function AgendaView({ data }: { data: AgendaData }) {
   const [toast, setToast] = useState<string | null>(null);
   const [showCal, setShowCal] = useState(false);
   const [mobilePro, setMobilePro] = useState(data.professionals[0]?.id ?? "");
+  // Default inteligente: arranca con un número cómodo (5), no todos apretados.
   const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(data.professionals.map((p) => p.id))
+    () => new Set(data.professionals.slice(0, 5).map((p) => p.id))
   );
 
   const liveNow = useLiveNowMin(data.isToday);
@@ -446,7 +447,7 @@ export function AgendaView({ data }: { data: AgendaData }) {
             ) : (
               <div className="flex h-[calc(100dvh-17rem)] min-h-[420px]">
                 <div className="flex w-12 shrink-0 flex-col">
-                  <div className="mb-1 h-9 shrink-0" />
+                  <div className="mb-1 h-11 shrink-0" />
                   <div className="relative flex-1">
                     {hourMarks.map((h) => (
                       <span
@@ -459,7 +460,10 @@ export function AgendaView({ data }: { data: AgendaData }) {
                     ))}
                   </div>
                 </div>
-                <div className="grid flex-1 auto-cols-fr grid-flow-col">
+                {/* Columnas anchas y legibles. Si caben, llenan el ancho
+                    (flex-1); si son muchas, mantienen ancho mínimo y aparece
+                    scroll horizontal suave — nunca se aprietan. */}
+                <div className="flex flex-1 overflow-x-auto">
                   <AnimatePresence initial={false}>
                     {shownPros.map((p) => (
                       <motion.div
@@ -469,13 +473,18 @@ export function AgendaView({ data }: { data: AgendaData }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="flex min-w-0 flex-col border-l border-border px-1"
+                        className="flex min-w-[180px] flex-1 flex-col border-l border-border px-1.5"
                       >
-                        <div className="mb-1 flex h-9 shrink-0 items-center justify-center gap-1.5 text-center">
-                          <Avatar name={p.name} size={22} />
-                          <p className="truncate text-sm font-medium leading-tight">
-                            {p.name.split(" ")[0]}
-                          </p>
+                        <div className="mb-1 flex h-11 shrink-0 items-center gap-2">
+                          <Avatar name={p.name} size={26} />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium leading-tight">
+                              {p.name}
+                            </p>
+                            <p className="truncate text-[11px] leading-tight text-muted">
+                              {p.specialty}
+                            </p>
+                          </div>
                         </div>
                         <div className="flex-1">
                           <ProColumn proId={p.id} compact />

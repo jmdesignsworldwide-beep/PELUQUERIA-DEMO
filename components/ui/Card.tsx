@@ -71,7 +71,8 @@ export function Card({
       whileHover={interactive ? { y: -3 } : undefined}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border glass shadow-layered",
+        "group relative overflow-hidden rounded-2xl border border-border glass shadow-card transition-shadow duration-300",
+        interactive && "hover:shadow-pop",
         className
       )}
     >

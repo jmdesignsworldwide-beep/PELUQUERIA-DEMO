@@ -20,69 +20,73 @@
 /* ===================== 🌸 SALÓN ===================== */
 
 [data-skin="salon"][data-theme="light"] {
-  --bg: 250 245 241;
-  --surface: 255 251 248;
-  --surface-2: 248 240 235;
-  --border: 232 216 214;
-  --fg: 43 31 35;
-  --muted: 124 106 112;
-  --accent: 183 105 120;          /* dusty rose */
-  --accent-soft: 232 205 211;
-  --accent-contrast: 255 252 250; /* texto sobre acento */
-  --metallic: 176 141 87;         /* champagne */
-  --aurora-1: 224 168 184;        /* rosa empolvado */
-  --aurora-2: 226 196 150;        /* champagne */
-  --aurora-strength: 0.45;
+  --bg: 251 248 245;              /* crema cálido / marfil */
+  --surface: 255 253 251;
+  --surface-2: 246 240 234;
+  --border: 233 223 216;
+  --fg: 43 34 40;                 /* casi-negro cálido */
+  --muted: 130 117 123;
+  --accent: 186 110 132;          /* rosa empolvado */
+  --accent-2: 168 150 205;        /* lavanda suave */
+  --accent-soft: 240 224 230;
+  --accent-contrast: 255 252 250;
+  --metallic: 194 163 107;        /* dorado champagne */
+  --aurora-1: 224 168 184;        /* rosa */
+  --aurora-2: 226 200 150;        /* champagne */
+  --aurora-strength: 0.4;
 }
 
 [data-skin="salon"][data-theme="dark"] {
-  --bg: 19 14 17;
-  --surface: 28 21 25;
-  --surface-2: 38 29 34;
-  --border: 58 45 52;
-  --fg: 245 236 239;
-  --muted: 172 152 160;
-  --accent: 210 150 168;          /* dusty rose luminoso */
-  --accent-soft: 70 48 57;
-  --accent-contrast: 24 16 20;
-  --metallic: 214 178 126;        /* champagne */
-  --aurora-1: 196 120 144;
-  --aurora-2: 190 150 102;
-  --aurora-strength: 0.55;
+  --bg: 22 17 20;                 /* near-black cálido */
+  --surface: 31 24 28;
+  --surface-2: 41 32 37;
+  --border: 60 48 54;
+  --fg: 245 237 240;
+  --muted: 176 158 166;
+  --accent: 214 156 174;          /* rosa empolvado luminoso */
+  --accent-2: 184 168 220;        /* lavanda */
+  --accent-soft: 66 50 58;
+  --accent-contrast: 26 18 22;
+  --metallic: 216 182 130;        /* champagne */
+  --aurora-1: 198 124 146;
+  --aurora-2: 196 158 110;
+  --aurora-strength: 0.5;
 }
 
 /* ===================== 💈 BARBERÍA ===================== */
 
 [data-skin="barberia"][data-theme="light"] {
-  --bg: 240 237 232;              /* hueso / piedra cálida */
-  --surface: 251 249 245;
-  --surface-2: 235 231 224;
-  --border: 219 213 204;
-  --fg: 28 28 30;
-  --muted: 102 99 94;
-  --accent: 160 92 54;            /* cobre envejecido */
-  --accent-soft: 226 210 196;
-  --accent-contrast: 252 249 245;
-  --metallic: 150 120 75;         /* dorado envejecido */
-  --aurora-1: 178 120 78;         /* cobre */
-  --aurora-2: 150 124 82;         /* dorado viejo */
-  --aurora-strength: 0.32;
+  --bg: 245 241 234;              /* crema tostada / arena */
+  --surface: 252 249 243;
+  --surface-2: 238 232 222;
+  --border: 226 217 204;
+  --fg: 38 31 26;                 /* carbón terroso */
+  --muted: 122 110 98;
+  --accent: 141 94 58;            /* marrón cuero */
+  --accent-2: 198 165 122;        /* arena / tostado */
+  --accent-soft: 232 220 204;
+  --accent-contrast: 252 248 242;
+  --metallic: 176 116 66;         /* cobre / bronce */
+  --aurora-1: 198 150 104;        /* cobre */
+  --aurora-2: 206 180 140;        /* arena */
+  --aurora-strength: 0.3;
 }
 
 [data-skin="barberia"][data-theme="dark"] {
-  --bg: 15 15 17;                 /* carbón near-black */
-  --surface: 23 23 26;
-  --surface-2: 32 32 36;
-  --border: 51 51 57;
-  --fg: 238 236 232;
-  --muted: 150 147 142;
-  --accent: 198 126 80;           /* cobre */
-  --accent-soft: 58 44 34;
-  --accent-contrast: 18 16 14;
-  --metallic: 192 160 106;        /* dorado envejecido */
-  --aurora-1: 184 112 66;
-  --aurora-2: 150 120 78;
-  --aurora-strength: 0.5;
+  --bg: 22 19 16;                 /* carbón cálido near-black */
+  --surface: 30 26 22;
+  --surface-2: 40 34 29;
+  --border: 58 50 43;
+  --fg: 240 233 224;
+  --muted: 156 144 130;
+  --accent: 198 134 82;           /* cobre */
+  --accent-2: 200 168 124;        /* arena */
+  --accent-soft: 58 46 35;
+  --accent-contrast: 24 19 14;
+  --metallic: 196 154 100;        /* bronce */
+  --aurora-1: 184 120 70;
+  --aurora-2: 168 138 96;
+  --aurora-strength: 0.46;
 }
 
 /* ===================== ◆ NEUTRAL (login pre-piel) ===================== */
@@ -95,6 +99,7 @@
   --fg: 30 29 31;
   --muted: 110 107 102;
   --accent: 156 124 64;           /* dorado champagne sobrio */
+  --accent-2: 150 140 170;
   --accent-soft: 230 222 208;
   --accent-contrast: 253 251 247;
   --metallic: 156 124 64;
@@ -111,6 +116,7 @@
   --fg: 240 238 233;
   --muted: 150 148 143;
   --accent: 212 180 128;          /* champagne */
+  --accent-2: 150 140 170;
   --accent-soft: 60 52 40;
   --accent-contrast: 20 18 14;
   --metallic: 212 180 128;

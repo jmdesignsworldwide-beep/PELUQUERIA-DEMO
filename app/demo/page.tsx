@@ -80,7 +80,7 @@ export default function DemoPage() {
     <main className="relative min-h-dvh">
       <AuroraBackground />
 
-      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         {/* barra superior */}
         <header className="mb-10 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -229,6 +229,67 @@ export default function DemoPage() {
           </Card>
         </div>
 
+        {/* ───── LENGUAJE VISUAL (estándar) ───── */}
+        <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* Paleta */}
+          <Card className="p-6">
+            <h3 className="mb-1 font-display text-lg font-semibold">Paleta de la piel</h3>
+            <p className="mb-5 text-sm text-muted">
+              Acentos, metálico y superficies. Cambian con la piel; misma estructura.
+            </p>
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+              {[
+                { c: "bg-accent", l: "Acento" },
+                { c: "bg-accent-2", l: "Secundario" },
+                { c: "bg-metallic", l: "Metálico" },
+                { c: "bg-surface border border-border", l: "Surface" },
+                { c: "bg-surface-2", l: "Surface 2" },
+                { c: "bg-bg border border-border", l: "Fondo" },
+              ].map((s) => (
+                <div key={s.l} className="space-y-1.5">
+                  <div className={`h-12 w-full rounded-xl ${s.c} shadow-soft`} />
+                  <p className="text-center text-[11px] text-muted">{s.l}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Estados + inputs */}
+          <Card className="p-6">
+            <h3 className="mb-1 font-display text-lg font-semibold">Estados e inputs</h3>
+            <p className="mb-4 text-sm text-muted">Badges sólidos y campos limpios.</p>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {[
+                ["Pendiente", "bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-400"],
+                ["Confirmada", "bg-sky-500/20 border-sky-500/40 text-sky-600 dark:text-sky-400"],
+                ["En proceso", "bg-accent/20 border-accent/50 text-accent"],
+                ["Completada", "bg-emerald-500/20 border-emerald-500/40 text-emerald-600 dark:text-emerald-400"],
+                ["Cancelada", "bg-red-500/15 border-red-500/30 text-red-500"],
+              ].map(([l, c]) => (
+                <span key={l} className={`rounded-full border px-2.5 py-1 text-xs font-medium ${c}`}>
+                  {l}
+                </span>
+              ))}
+            </div>
+            <input
+              placeholder="Nombre del cliente"
+              className="mb-3 h-11 w-full rounded-xl border border-border bg-surface-2/60 px-3.5 text-fg outline-none transition-colors placeholder:text-muted/60 focus:border-accent/60"
+            />
+            {/* Bloque de cita estilo Fresha */}
+            <div className="flex items-center gap-2.5 rounded-xl border border-border border-l-[4px] border-l-accent bg-accent/10 p-3 shadow-soft">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/20 font-display text-sm font-semibold text-accent">
+                RM
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">Rosa Mejía</p>
+                <p className="truncate text-xs text-muted">
+                  2:00 PM · {skin.vocab.professional} de turno
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {/* tipografía */}
         <Card className="p-6 sm:p-8">
           <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted">
@@ -247,7 +308,7 @@ export default function DemoPage() {
         </Card>
 
         <footer className="mt-12 text-center text-xs text-muted">
-          Tanda 1 · Cimientos · Sistema de diseño bi-piel
+          Estándar visual · Lenguaje de diseño bi-piel
         </footer>
       </div>
 

@@ -21,6 +21,7 @@ const config: Config = {
         fg: "rgb(var(--fg) / <alpha-value>)",
         muted: "rgb(var(--muted) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
+        "accent-2": "rgb(var(--accent-2) / <alpha-value>)",
         "accent-soft": "rgb(var(--accent-soft) / <alpha-value>)",
         "accent-contrast": "rgb(var(--accent-contrast) / <alpha-value>)",
         metallic: "rgb(var(--metallic) / <alpha-value>)",
@@ -33,6 +34,10 @@ const config: Config = {
         glow: "0 0 0 1px rgb(var(--accent) / 0.25), 0 8px 30px -8px rgb(var(--accent) / 0.35)",
         layered:
           "0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.25), 0 24px 48px -24px rgb(0 0 0 / 0.30)",
+        // Sombras en capas con valores concretos (estándar visual).
+        soft: "0 1px 2px rgb(0 0 0 / 0.05), 0 2px 8px -3px rgb(0 0 0 / 0.08)",
+        card: "0 2px 4px -2px rgb(0 0 0 / 0.06), 0 6px 18px -6px rgb(0 0 0 / 0.12)",
+        pop: "0 4px 10px -4px rgb(0 0 0 / 0.10), 0 16px 40px -12px rgb(0 0 0 / 0.22)",
       },
       borderRadius: {
         xl: "1rem",

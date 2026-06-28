@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { isBusinessType } from "@/lib/skins";
-import { AppChrome } from "./AppChrome";
+import { AppShell } from "@/components/app/AppShell";
 
 /**
  * Layout del área autenticada. Lee el perfil de la cuenta EN EL SERVIDOR y
@@ -22,7 +22,7 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, business_type, business_name")
+    .select("username, business_type")
     .eq("id", user.id)
     .single();
 
@@ -40,12 +40,7 @@ export default async function AppLayout({
           __html: `document.documentElement.setAttribute('data-skin','${skin}');`,
         }}
       />
-      <AppChrome
-        businessName={profile.business_name}
-        username={profile.username}
-      >
-        {children}
-      </AppChrome>
+      <AppShell username={profile.username}>{children}</AppShell>
     </AppProviders>
   );
 }

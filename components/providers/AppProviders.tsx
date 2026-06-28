@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { MotionConfig } from "framer-motion";
 import { BusinessType, Skin, getSkin } from "@/lib/skins";
 import { THEME_KEY, ThemeMode } from "@/lib/theme";
 
@@ -88,7 +89,12 @@ export function AppProviders({
     [businessType, theme, setBusinessType, toggleTheme, setTheme]
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {/* Todas las animaciones de framer respetan prefers-reduced-motion. */}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+    </AppContext.Provider>
+  );
 }
 
 export function useApp() {

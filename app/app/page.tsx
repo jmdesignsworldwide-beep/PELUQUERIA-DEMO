@@ -1,14 +1,8 @@
-import {
-  CalendarDays,
-  Scissors,
-  Users,
-  Wallet,
-  Briefcase,
-  Sparkles,
-} from "lucide-react";
+import { CalendarDays, Users, Wallet, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSkin } from "@/lib/skins";
 import { Card } from "@/components/ui/Card";
+import { KpiNumber } from "@/components/ui/KpiNumber";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 
 export default async function AppHome() {
@@ -19,20 +13,17 @@ export default async function AppHome() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("business_type, business_name, role")
+    .select("business_type")
     .eq("id", user!.id)
     .single();
 
   const skin = getSkin(profile?.business_type as never);
   const v = skin.vocab;
 
-  const modules = [
-    { label: "Citas", icon: CalendarDays },
-    { label: v.customerPlural, icon: Users },
-    { label: v.professionalPlural, icon: Briefcase },
-    { label: "Servicios", icon: Scissors },
-    { label: "Pagos", icon: Wallet },
-    { label: "Caja", icon: Sparkles },
+  const kpis = [
+    { label: `${v.customerPlural} activas`, value: 248, icon: Users },
+    { label: "Citas hoy", value: 17, icon: CalendarDays },
+    { label: "Ingresos del día", value: 28450, prefix: "RD$ ", icon: Wallet },
   ];
 
   return (
@@ -40,23 +31,43 @@ export default async function AppHome() {
       <RevealItem>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border glass px-3 py-1 text-xs text-muted">
           <Sparkles size={13} className="text-metallic" />
-          Sesión iniciada · piel amarrada a tu cuenta
+          {skin.label} · Panel de control
         </span>
       </RevealItem>
 
       <RevealItem>
         <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-          Bienvenida a{" "}
-          <span className="text-accent">{skin.businessName}</span>.
+          Bienvenida a <span className="text-accent">{skin.businessName}</span>.
         </h1>
         <p className="mt-3 max-w-xl text-muted">
-          Tu cuenta está configurada como{" "}
-          <span className="text-fg">{skin.label}</span>. Todo el sistema usa el
-          vocabulario y los colores de esta piel.
+          Este es tu panel. Usa el menú lateral para moverte entre módulos. Los
+          números de abajo son de ejemplo para mostrar el estilo.
         </p>
       </RevealItem>
 
-      {/* Prueba visual del vocabulario por piel */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {kpis.map((k) => {
+          const Icon = k.icon;
+          return (
+            <RevealItem key={k.label}>
+              <Card className="p-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm text-muted">{k.label}</span>
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-accent">
+                    <Icon size={17} />
+                  </span>
+                </div>
+                <KpiNumber
+                  value={k.value}
+                  prefix={k.prefix}
+                  className="font-display text-3xl font-semibold"
+                />
+              </Card>
+            </RevealItem>
+          );
+        })}
+      </div>
+
       <RevealItem>
         <Card className="p-6">
           <p className="mb-4 text-xs uppercase tracking-[0.2em] text-muted">
@@ -77,26 +88,6 @@ export default async function AppHome() {
             </div>
           </div>
         </Card>
-      </RevealItem>
-
-      {/* Teaser de módulos — el layout completo (sidebar) llega en la próxima sub-pieza */}
-      <RevealItem>
-        <p className="mb-3 text-sm text-muted">
-          Módulos del sistema (navegación completa en la próxima entrega):
-        </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {modules.map((m) => {
-            const Icon = m.icon;
-            return (
-              <Card key={m.label} className="flex items-center gap-3 p-4">
-                <span className="grid h-10 w-10 place-items-center rounded-lg bg-surface-2 text-accent">
-                  <Icon size={18} />
-                </span>
-                <span className="font-medium">{m.label}</span>
-              </Card>
-            );
-          })}
-        </div>
       </RevealItem>
     </Reveal>
   );

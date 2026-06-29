@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { MoneyProvider } from "@/components/providers/MoneyProvider";
 import { isBusinessType } from "@/lib/skins";
 import { AppShell } from "@/components/app/AppShell";
 
@@ -40,7 +41,9 @@ export default async function AppLayout({
           __html: `document.documentElement.setAttribute('data-skin','${skin}');`,
         }}
       />
-      <AppShell username={profile.username}>{children}</AppShell>
+      <MoneyProvider>
+        <AppShell username={profile.username}>{children}</AppShell>
+      </MoneyProvider>
     </AppProviders>
   );
 }

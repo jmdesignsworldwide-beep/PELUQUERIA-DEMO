@@ -1,9 +1,9 @@
-import { CalendarDays, Users, Wallet, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSkin } from "@/lib/skins";
 import { Card } from "@/components/ui/Card";
-import { KpiNumber } from "@/components/ui/KpiNumber";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
+import { DashboardKpis } from "@/components/app/DashboardKpis";
 
 export default async function AppHome() {
   const supabase = createClient();
@@ -19,12 +19,6 @@ export default async function AppHome() {
 
   const skin = getSkin(profile?.business_type as never);
   const v = skin.vocab;
-
-  const kpis = [
-    { label: `${v.customerPlural} activas`, value: 248, icon: Users },
-    { label: "Citas hoy", value: 17, icon: CalendarDays },
-    { label: "Ingresos del día", value: 28450, prefix: "RD$ ", icon: Wallet },
-  ];
 
   return (
     <Reveal className="space-y-8">
@@ -45,28 +39,9 @@ export default async function AppHome() {
         </p>
       </RevealItem>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {kpis.map((k) => {
-          const Icon = k.icon;
-          return (
-            <RevealItem key={k.label}>
-              <Card className="p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm text-muted">{k.label}</span>
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-accent">
-                    <Icon size={17} />
-                  </span>
-                </div>
-                <KpiNumber
-                  value={k.value}
-                  prefix={k.prefix}
-                  className="font-display text-3xl font-semibold"
-                />
-              </Card>
-            </RevealItem>
-          );
-        })}
-      </div>
+      <RevealItem>
+        <DashboardKpis />
+      </RevealItem>
 
       <RevealItem>
         <Card className="p-6">

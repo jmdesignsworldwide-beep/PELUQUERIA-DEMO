@@ -699,6 +699,9 @@ function GastoModal({
         >
           Registrar gasto
         </Button>
+        <p className="text-center text-[11px] text-muted">
+          Demo: el gasto se ve al instante (no persiste al recargar).
+        </p>
       </div>
     </Modal>
   );

@@ -134,7 +134,7 @@ export function FidelizacionClient() {
           <div className="flex gap-2 overflow-x-auto pb-1">
             {cumpleMes.map((c) => (
               <button key={c.name} type="button" onClick={() => setOpenName(c.name)}
-                className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-2/40 px-3 py-2 text-left transition-colors hover:border-accent/40">
+                className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-2/40 px-3 py-2 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop">
                 <Avatar name={c.name} size={32} />
                 <div>
                   <p className="text-sm font-medium">{c.name}</p>
@@ -187,7 +187,7 @@ export function FidelizacionClient() {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {REWARDS.map((r) => (
             <button key={r.pts} type="button" onClick={() => { setReward(r); setCanjeado(false); }}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border glass p-3 text-left transition-colors hover:border-accent/40">
+              className="flex items-center justify-between gap-3 rounded-xl border border-border glass p-3 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop">
               <div>
                 <p className="text-sm font-medium">{r.premio}</p>
                 <p className="text-[11px] text-muted">{r.pts.toLocaleString("es-DO")} puntos</p>

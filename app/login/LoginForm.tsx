@@ -39,7 +39,7 @@ export function LoginForm() {
           spellCheck={false}
           required
           placeholder="tu-usuario"
-          className="h-12 w-full rounded-xl border border-border bg-surface-2/60 px-4 text-fg outline-none transition-colors placeholder:text-muted/60 focus:border-accent/60"
+          className="h-12 w-full rounded-xl border border-border bg-surface-2/60 px-4 text-fg outline-none transition-premium placeholder:text-muted/60 focus:border-accent/60 focus:ring-4 focus:ring-accent/10"
         />
       </div>
 
@@ -55,7 +55,7 @@ export function LoginForm() {
             autoComplete="current-password"
             required
             placeholder="••••••••"
-            className="h-12 w-full rounded-xl border border-border bg-surface-2/60 px-4 pr-12 text-fg outline-none transition-colors placeholder:text-muted/60 focus:border-accent/60"
+            className="h-12 w-full rounded-xl border border-border bg-surface-2/60 px-4 pr-12 text-fg outline-none transition-premium placeholder:text-muted/60 focus:border-accent/60 focus:ring-4 focus:ring-accent/10"
           />
           <button
             type="button"

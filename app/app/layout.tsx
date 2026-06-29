@@ -4,6 +4,7 @@ import { AppProviders } from "@/components/providers/AppProviders";
 import { MoneyProvider } from "@/components/providers/MoneyProvider";
 import { isBusinessType } from "@/lib/skins";
 import { AppShell } from "@/components/app/AppShell";
+import { WelcomeOverlay } from "@/components/app/WelcomeOverlay";
 
 /**
  * Layout del área autenticada. Lee el perfil de la cuenta EN EL SERVIDOR y
@@ -65,6 +66,7 @@ export default async function AppLayout({
         }}
       />
       <MoneyProvider>
+        <WelcomeOverlay />
         <AppShell username={profile.username}>{children}</AppShell>
       </MoneyProvider>
     </AppProviders>

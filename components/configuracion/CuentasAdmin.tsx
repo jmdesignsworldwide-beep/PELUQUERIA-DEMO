@@ -169,12 +169,13 @@ export function CuentasAdmin() {
               <button
                 key={acc.id}
                 type="button"
-                onClick={() => acc.role !== "admin" && setSelected(acc)}
+                disabled={acc.role === "admin"}
+                onClick={() => setSelected(acc)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left transition-colors",
+                  "flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left shadow-soft transition-premium",
                   acc.role === "admin"
                     ? "cursor-default opacity-90"
-                    : "hover:border-accent/40 hover:bg-surface-2/60"
+                    : "hover:border-accent/40 hover:bg-surface-2/60 hover:shadow-pop"
                 )}
               >
                 <div className="min-w-0 flex-1">

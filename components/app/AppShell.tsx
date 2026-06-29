@@ -177,7 +177,7 @@ export function AppShell({
           isCitas ? "h-dvh overflow-hidden" : "min-h-dvh"
         )}
       >
-        <header className="sticky top-0 z-20 border-b border-border glass">
+        <header className="sticky top-0 z-20 border-b border-border glass-strong">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <button

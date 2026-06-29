@@ -15,6 +15,13 @@
 :root {
   /* radios / tiempos compartidos */
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* duración estándar de micro-interacciones (200–300ms) */
+  --dur-fast: 160ms;
+  --dur: 220ms;
+  --dur-slow: 320ms;
+  /* color base de sombra (cada piel lo re-tinta); fallback antes de la piel */
+  --shadow-rgb: 0 0 0;
 }
 
 /* ===================== 🌸 SALÓN ===================== */
@@ -33,6 +40,7 @@
   --aurora-1: 224 168 184;        /* rosa empolvado */
   --aurora-2: 226 196 150;        /* champagne */
   --aurora-strength: 0.45;
+  --shadow-rgb: 78 44 54;         /* sombra tintada cálida (no negro) */
 }
 
 [data-skin="salon"][data-theme="dark"] {
@@ -49,6 +57,7 @@
   --aurora-1: 196 120 144;
   --aurora-2: 190 150 102;
   --aurora-strength: 0.55;
+  --shadow-rgb: 0 0 0;
 }
 
 /* ===================== 💈 BARBERÍA ===================== */
@@ -67,6 +76,7 @@
   --aurora-1: 178 120 78;         /* cobre */
   --aurora-2: 150 124 82;         /* dorado viejo */
   --aurora-strength: 0.32;
+  --shadow-rgb: 56 38 24;         /* sombra tintada tierra */
 }
 
 [data-skin="barberia"][data-theme="dark"] {
@@ -83,6 +93,7 @@
   --aurora-1: 184 112 66;
   --aurora-2: 150 120 78;
   --aurora-strength: 0.5;
+  --shadow-rgb: 0 0 0;
 }
 
 /*
@@ -142,6 +153,7 @@
   --aurora-1: 206 180 130;
   --aurora-2: 175 178 188;
   --aurora-strength: 0.3;
+  --shadow-rgb: 40 34 24;
 }
 
 [data-skin="neutral"][data-theme="dark"] {
@@ -158,6 +170,7 @@
   --aurora-1: 200 170 120;
   --aurora-2: 120 122 138;
   --aurora-strength: 0.42;
+  --shadow-rgb: 0 0 0;
 }
 
 /* ===================== BASE ===================== */
@@ -176,12 +189,47 @@ body {
   font-feature-settings: "ss01", "cv01";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
   transition: background-color 0.5s var(--ease-spring), color 0.35s ease;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/*
+  ── Utilidades tipográficas de lujo ──
+  Títulos display: tracking más fino y equilibrio de línea (text-wrap: balance)
+  para que un encabezado nunca quede con una sola palabra colgando.
+*/
+.font-display {
+  letter-spacing: -0.02em;
+}
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Transición premium estándar para superficies interactivas (color+sombra+transform) */
+.transition-premium {
+  transition-property: color, background-color, border-color, box-shadow,
+    transform, opacity;
+  transition-timing-function: var(--ease-out);
+  transition-duration: var(--dur);
+}
+
+/* Glass más presente para barras/headers que necesitan separarse del fondo */
+.glass-strong {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--surface) / 0.92),
+    rgb(var(--surface) / 0.78)
+  );
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }
 
 /* glass premium reutilizable */

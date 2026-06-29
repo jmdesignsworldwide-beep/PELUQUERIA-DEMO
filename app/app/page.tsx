@@ -21,7 +21,7 @@ export default async function AppHome() {
   const v = skin.vocab;
 
   return (
-    <Reveal className="space-y-8">
+    <Reveal className="space-y-10">
       <RevealItem>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border glass px-3 py-1 text-xs text-muted">
           <Sparkles size={13} className="text-metallic" />
@@ -30,10 +30,10 @@ export default async function AppHome() {
       </RevealItem>
 
       <RevealItem>
-        <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
+        <h1 className="text-balance font-display text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl">
           Bienvenida a <span className="text-accent">{skin.businessName}</span>.
         </h1>
-        <p className="mt-3 max-w-xl text-muted">
+        <p className="mt-4 max-w-xl text-pretty leading-relaxed text-muted">
           Este es tu panel. Usa el menú lateral para moverte entre módulos. Los
           números de abajo son de ejemplo para mostrar el estilo.
         </p>
@@ -44,8 +44,8 @@ export default async function AppHome() {
       </RevealItem>
 
       <RevealItem>
-        <Card className="p-6">
-          <p className="mb-4 text-xs uppercase tracking-[0.2em] text-muted">
+        <Card className="p-6 sm:p-7">
+          <p className="mb-5 text-xs uppercase tracking-[0.2em] text-muted">
             Vocabulario de tu piel
           </p>
           <div className="grid grid-cols-2 gap-6">

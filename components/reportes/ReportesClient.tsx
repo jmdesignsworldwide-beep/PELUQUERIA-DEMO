@@ -209,17 +209,17 @@ export function ReportesClient() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border glass p-4">
+        <div className="rounded-2xl border border-border glass p-4 shadow-soft">
           <p className="mb-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted"><CalendarX size={12} /> Canceladas (14d)</p>
           <p className="font-display text-2xl font-semibold tabular" style={{ color: "rgb(var(--st-cancelada))" }}>{agenda.cancel}</p>
           <p className="text-[11px] text-muted">de {agenda.total} citas</p>
         </div>
-        <div className="rounded-2xl border border-border glass p-4">
+        <div className="rounded-2xl border border-border glass p-4 shadow-soft">
           <p className="mb-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted"><CalendarX size={12} /> No presentadas (14d)</p>
           <p className="font-display text-2xl font-semibold tabular" style={{ color: "rgb(var(--st-noshow))" }}>{agenda.noshow}</p>
           <p className="text-[11px] text-muted">de {agenda.total} citas</p>
         </div>
-        <div className="rounded-2xl border border-border glass p-4">
+        <div className="rounded-2xl border border-border glass p-4 shadow-soft">
           <p className="mb-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted"><Gift size={12} /> Fidelización</p>
           <p className="font-display text-2xl font-semibold tabular text-accent">{fidel.puntos.toLocaleString("es-DO")}</p>
           <p className="text-[11px] text-muted">puntos · {fidel.vip} VIP</p>
@@ -268,7 +268,7 @@ function maxOf(rec: Record<string, number>): number {
 /* ── UI ── */
 function Card({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border glass p-4">
+    <div className="rounded-2xl border border-border glass p-4 shadow-soft sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">{title}</p>
         {hint && <p className="text-[10px] text-muted">{hint}</p>}
@@ -279,7 +279,7 @@ function Card({ title, hint, children }: { title: string; hint?: string; childre
 }
 function Kpi({ icon: Icon, label, value, highlight }: { icon: typeof TrendingUp; label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={cn("rounded-2xl border border-border glass p-4", highlight && "shadow-glow")}>
+    <div className={cn("rounded-2xl border border-border glass p-4 shadow-soft", highlight && "shadow-glow")}>
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs text-muted">{label}</span>
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-surface-2 text-accent"><Icon size={15} /></span>

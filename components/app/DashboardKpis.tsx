@@ -84,7 +84,7 @@ export function DashboardKpis() {
           <Link
             key={c.label}
             href={c.href}
-            className="group relative overflow-hidden rounded-2xl border border-border glass p-5 shadow-layered transition-colors hover:border-accent/40"
+            className="group relative overflow-hidden rounded-2xl border border-border glass p-5 shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-6"
           >
             <div
               aria-hidden
@@ -96,7 +96,7 @@ export function DashboardKpis() {
             />
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm text-muted">{c.label}</span>
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-accent">
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-accent transition-premium group-hover:bg-accent-soft/60">
                 <Icon size={17} />
               </span>
             </div>

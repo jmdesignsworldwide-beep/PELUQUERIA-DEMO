@@ -133,7 +133,7 @@ export function ClientesClient() {
               key={c.name}
               type="button"
               onClick={() => setOpenName(c.name)}
-              className="group flex items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left transition-colors hover:border-accent/40 hover:bg-surface-2/60"
+              className="group flex items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface-2/60 hover:shadow-pop"
             >
               <Avatar name={c.name} />
               <div className="min-w-0 flex-1">

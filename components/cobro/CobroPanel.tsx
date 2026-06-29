@@ -412,7 +412,7 @@ export function CobroPanel({
               <span className="mb-1.5 block text-xs font-medium text-muted">
                 Método de pago
               </span>
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                 {(["efectivo", "transferencia", "tarjeta", "mixto"] as Mode[]).map(
                   (m) => {
                     const Icon = METHOD_ICON[m];

@@ -155,7 +155,7 @@ export function ServiciosClient() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.25 }}
                 onClick={() => setDetailId(s.id)}
-                className="group flex h-full w-full flex-col rounded-2xl border border-border glass p-4 text-left shadow-layered transition-colors hover:border-accent/40"
+                className="group flex h-full w-full flex-col rounded-2xl border border-border glass p-4 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-5"
               >
                 <div className="mb-2 flex items-start justify-between gap-2">
                   <div className="min-w-0">

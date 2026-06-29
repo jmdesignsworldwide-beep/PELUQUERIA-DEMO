@@ -85,6 +85,47 @@
   --aurora-strength: 0.5;
 }
 
+/*
+  ── COLORES DE ESTADO DE CITA (un canal RGB por estado) ──
+  El componente deriva relleno/borde/texto aplicando alfa sobre estos canales,
+  así no se hardcodea ningún color. "proceso" = acento de la piel.
+  Salón: semánticos refinados (no neón). Barbería: tintados hacia tierra.
+*/
+
+[data-skin="salon"][data-theme="light"] {
+  --st-pendiente: 184 130 48;     /* ámbar suave */
+  --st-confirmada: 86 118 178;    /* azul empolvado */
+  --st-proceso: 183 105 120;      /* = acento rosa */
+  --st-completada: 86 148 108;    /* verde salvia */
+  --st-noshow: 138 128 132;       /* gris cálido */
+  --st-cancelada: 188 94 102;     /* rojo suave */
+}
+[data-skin="salon"][data-theme="dark"] {
+  --st-pendiente: 218 172 100;
+  --st-confirmada: 142 170 222;
+  --st-proceso: 210 150 168;      /* = acento rosa luminoso */
+  --st-completada: 132 192 152;
+  --st-noshow: 170 158 162;
+  --st-cancelada: 226 140 146;
+}
+
+[data-skin="barberia"][data-theme="light"] {
+  --st-pendiente: 176 126 50;     /* ámbar tostado */
+  --st-confirmada: 92 116 156;    /* azul pizarra terroso */
+  --st-proceso: 160 92 54;        /* = acento cobre */
+  --st-completada: 108 140 92;    /* verde oliva */
+  --st-noshow: 128 122 112;       /* gris cálido tierra */
+  --st-cancelada: 176 94 74;      /* terracota */
+}
+[data-skin="barberia"][data-theme="dark"] {
+  --st-pendiente: 206 162 96;
+  --st-confirmada: 136 158 196;
+  --st-proceso: 198 126 80;       /* = acento cobre */
+  --st-completada: 150 178 128;
+  --st-noshow: 158 150 140;
+  --st-cancelada: 214 132 104;
+}
+
 /* ===================== ◆ NEUTRAL (login pre-piel) ===================== */
 
 [data-skin="neutral"][data-theme="light"] {

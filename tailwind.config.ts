@@ -46,10 +46,22 @@ const config: Config = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        "shake-x": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%, 60%": { transform: "translateX(-4px)" },
+          "40%, 80%": { transform: "translateX(4px)" },
+        },
+        "now-pulse": {
+          "0%": { transform: "scale(1)", opacity: "0.9" },
+          "70%": { transform: "scale(2.4)", opacity: "0" },
+          "100%": { transform: "scale(2.4)", opacity: "0" },
+        },
       },
       animation: {
         "aurora-drift": "aurora-drift 14s ease-in-out infinite",
         shimmer: "shimmer 1.8s infinite",
+        "shake-x": "shake-x 0.4s var(--ease-spring)",
+        "now-pulse": "now-pulse 2.4s ease-out infinite",
       },
     },
   },

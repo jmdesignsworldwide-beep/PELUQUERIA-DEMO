@@ -201,7 +201,13 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        <main
+          className={cn(
+            "mx-auto w-full flex-1 px-4 py-8 sm:px-6 sm:py-10",
+            // La agenda necesita más ancho para columnas densas y legibles.
+            pathname.startsWith("/app/citas") ? "max-w-7xl" : "max-w-5xl"
+          )}
+        >
           {children}
         </main>
       </div>

@@ -6,6 +6,7 @@ import {
   Sparkles,
   Wallet,
   Calculator,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import type { SkinVocab } from "@/lib/skins";
@@ -30,4 +31,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/servicios", icon: Sparkles, label: () => "Servicios" },
   { href: "/app/pagos", icon: Wallet, label: () => "Pagos" },
   { href: "/app/caja", icon: Calculator, label: () => "Caja" },
+  { href: "/app/configuracion", icon: Settings, label: () => "Configuración" },
 ];

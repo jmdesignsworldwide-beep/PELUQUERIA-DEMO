@@ -15,6 +15,8 @@ import { THEME_KEY, ThemeMode } from "@/lib/theme";
 /** Piel para el atributo data-skin. "neutral" es solo para el login pre-piel. */
 export type SkinAttr = BusinessType | "neutral";
 
+export type Role = "admin" | "cliente";
+
 type AppContextValue = {
   skin: Skin;
   businessType: BusinessType;
@@ -22,6 +24,11 @@ type AppContextValue = {
   theme: ThemeMode;
   toggleTheme: () => void;
   setTheme: (t: ThemeMode) => void;
+  /** Datos de la cuenta (del servidor). */
+  role: Role;
+  username: string;
+  businessName: string;
+  accessExpiresAt: string | null;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -31,10 +38,18 @@ export function AppProviders({
   initialSkin = "salon",
   /** Si true, la piel puede cambiarse en runtime (solo para la página demo). */
   allowSkinSwitch = false,
+  role = "cliente",
+  username = "",
+  businessName = "",
+  accessExpiresAt = null,
 }: {
   children: React.ReactNode;
   initialSkin?: SkinAttr;
   allowSkinSwitch?: boolean;
+  role?: Role;
+  username?: string;
+  businessName?: string;
+  accessExpiresAt?: string | null;
 }) {
   const [skinAttr, setSkinAttr] = useState<SkinAttr>(initialSkin);
   const [theme, setThemeState] = useState<ThemeMode>("dark");
@@ -85,8 +100,22 @@ export function AppProviders({
       theme,
       toggleTheme,
       setTheme,
+      role,
+      username,
+      businessName,
+      accessExpiresAt,
     }),
-    [businessType, theme, setBusinessType, toggleTheme, setTheme]
+    [
+      businessType,
+      theme,
+      setBusinessType,
+      toggleTheme,
+      setTheme,
+      role,
+      username,
+      businessName,
+      accessExpiresAt,
+    ]
   );
 
   return (

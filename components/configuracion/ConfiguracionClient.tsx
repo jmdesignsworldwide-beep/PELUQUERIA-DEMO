@@ -10,6 +10,7 @@ import { Settings, ShieldCheck } from "lucide-react";
 import { useApp } from "@/components/providers/AppProviders";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { LinkReservasCard } from "./LinkReservasCard";
+import { CuentasAdmin } from "./CuentasAdmin";
 
 export function ConfiguracionClient() {
   const { role, businessName, skin } = useApp();
@@ -44,13 +45,18 @@ export function ConfiguracionClient() {
         <LinkReservasCard />
       </RevealItem>
 
-      {/* Próximas secciones (7.3–7.5): gestión de cuentas (admin), datos del
-          negocio, facturación simulada, mi cuenta. */}
+      {/* Gestión de cuentas: SOLO admin (también validado en el servidor). */}
+      {isAdmin && (
+        <RevealItem>
+          <CuentasAdmin />
+        </RevealItem>
+      )}
+
+      {/* Próximas secciones (7.5): datos del negocio, facturación simulada,
+          mi cuenta. */}
       <RevealItem>
         <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
-          {isAdmin
-            ? "Próximamente aquí: gestión de cuentas, datos del negocio y mi cuenta."
-            : "Próximamente aquí: datos del negocio y mi cuenta."}
+          Próximamente aquí: datos del negocio, facturación (simulada) y mi cuenta.
         </div>
       </RevealItem>
     </Reveal>

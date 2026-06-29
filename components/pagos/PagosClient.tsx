@@ -219,7 +219,7 @@ export function PagosClient() {
                 type="button"
                 onClick={() => setDetailId(p.id)}
                 className={cn(
-                  "group flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left transition-colors hover:border-accent/40 hover:bg-surface-2/60",
+                  "group flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left shadow-soft transition-premium hover:border-accent/40 hover:bg-surface-2/60 hover:shadow-pop",
                   anulado && "opacity-60"
                 )}
               >

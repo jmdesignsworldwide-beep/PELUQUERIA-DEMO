@@ -501,7 +501,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border glass p-4">
+    <div className="rounded-2xl border border-border glass p-4 shadow-soft sm:p-5">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
           {title}
@@ -534,8 +534,8 @@ function KpiCard({
       onClick={onClick}
       disabled={!onClick}
       className={cn(
-        "rounded-2xl border border-border glass p-5 text-left transition-colors",
-        onClick && "hover:border-accent/40",
+        "rounded-2xl border border-border glass p-5 text-left shadow-soft transition-premium",
+        onClick && "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop",
         highlight && "shadow-glow"
       )}
     >

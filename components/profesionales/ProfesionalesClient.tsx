@@ -149,7 +149,7 @@ export function ProfesionalesClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.25 }}
               onClick={() => setOpenId(p.id)}
-              className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-layered transition-colors hover:border-accent/40"
+              className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-5"
             >
               <Avatar name={p.name} hue={p.hue} size={48} />
               <div className="min-w-0 flex-1">

@@ -315,11 +315,11 @@ function Bars({
       {entries.map(([k, v]) => {
         const Row = (
           <>
-            <span className="w-28 shrink-0 truncate text-sm">{labelMap ? labelMap(k) : k}</span>
+            <span className="w-20 shrink-0 truncate text-sm sm:w-28">{labelMap ? labelMap(k) : k}</span>
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
               <span className="block h-full rounded-full" style={{ width: `${(v / max) * 100}%`, background: `rgb(var(--${accent}))` }} />
             </span>
-            <span className="w-24 shrink-0 text-right tabular text-sm font-medium">{fmt(cents ? v : v)}</span>
+            <span className="w-20 shrink-0 text-right tabular text-sm font-medium sm:w-24">{fmt(v)}</span>
           </>
         );
         return clickable ? (

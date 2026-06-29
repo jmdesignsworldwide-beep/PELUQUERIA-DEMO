@@ -87,7 +87,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
         <NavLinks onNavigate={onNavigate} />
       </div>
       <p className="px-3 text-[11px] text-muted">
-        Tanda 1 · Demo · JM Beauty
+        Demo · JM Designs
       </p>
     </div>
   );

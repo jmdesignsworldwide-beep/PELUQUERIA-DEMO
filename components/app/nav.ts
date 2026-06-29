@@ -10,6 +10,8 @@ import {
   Package,
   Truck,
   ShoppingBag,
+  Gift,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import type { SkinVocab } from "@/lib/skins";
@@ -37,5 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/inventario", icon: Package, label: () => "Inventario" },
   { href: "/app/proveedores", icon: Truck, label: () => "Proveedores" },
   { href: "/app/ventas", icon: ShoppingBag, label: () => "Venta de productos" },
+  { href: "/app/fidelizacion", icon: Gift, label: () => "Fidelización" },
+  { href: "/app/empleados", icon: UsersRound, label: () => "Empleados" },
   { href: "/app/configuracion", icon: Settings, label: () => "Configuración" },
 ];

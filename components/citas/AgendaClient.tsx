@@ -179,8 +179,8 @@ function Block({
     : selected
     ? "0 0 0 1.5px rgb(var(--accent)), 0 10px 26px -8px rgb(var(--accent) / 0.5)"
     : dragging
-    ? "0 0 0 1.5px rgb(var(--accent)), 0 18px 36px -10px rgb(0 0 0 / 0.5)"
-    : "0 1px 2px rgb(0 0 0 / 0.06)";
+    ? "0 0 0 1.5px rgb(var(--accent)), 0 18px 36px -10px rgb(var(--shadow-rgb) / 0.5)"
+    : "0 1px 2px rgb(var(--shadow-rgb) / 0.08)";
 
   return (
     <motion.div
@@ -214,7 +214,7 @@ function Block({
       className={cn(
         "group absolute overflow-hidden rounded-lg border select-none",
         !overlay &&
-          "transition-[box-shadow,border-color,transform] duration-150 hover:z-20 hover:-translate-y-px hover:shadow-[0_6px_16px_-4px_rgb(0_0_0/0.22)]",
+          "transition-[box-shadow,border-color,transform] duration-150 hover:z-20 hover:-translate-y-px hover:shadow-[0_6px_16px_-4px_rgb(var(--shadow-rgb)/0.22)]",
         shaking && "animate-shake-x",
         appt.status === "cancelada" && "opacity-[0.82]"
       )}
@@ -808,11 +808,11 @@ export function AgendaClient() {
             >
               {/* Encabezado de columnas (sticky top) */}
               <div
-                className="sticky top-0 z-30 flex border-b border-border glass"
+                className="sticky top-0 z-30 flex border-b border-border glass-strong"
                 style={{ height: HEADER_H }}
               >
                 <div
-                  className="sticky left-0 z-10 shrink-0 border-r border-border glass"
+                  className="sticky left-0 z-10 shrink-0 border-r border-border glass-strong"
                   style={{ width: GUTTER_W }}
                 />
                 {visiblePros.map((p) => (

@@ -31,8 +31,11 @@ const config: Config = {
       },
       boxShadow: {
         glow: "0 0 0 1px rgb(var(--accent) / 0.25), 0 8px 30px -8px rgb(var(--accent) / 0.35)",
+        // Sombras tintadas por piel (--shadow-rgb), suaves y difusas (feel 21st.dev).
+        soft: "0 1px 2px rgb(var(--shadow-rgb) / 0.04), 0 4px 14px -6px rgb(var(--shadow-rgb) / 0.10)",
         layered:
-          "0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.25), 0 24px 48px -24px rgb(0 0 0 / 0.30)",
+          "0 1px 2px rgb(var(--shadow-rgb) / 0.05), 0 6px 18px -10px rgb(var(--shadow-rgb) / 0.12), 0 20px 44px -24px rgb(var(--shadow-rgb) / 0.18)",
+        pop: "0 2px 6px rgb(var(--shadow-rgb) / 0.07), 0 14px 34px -14px rgb(var(--shadow-rgb) / 0.22)",
       },
       borderRadius: {
         xl: "1rem",

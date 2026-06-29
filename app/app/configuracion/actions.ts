@@ -34,8 +34,19 @@ export type ActionResult<T = undefined> =
   | { ok: true; data?: T }
   | { ok: false; error: string };
 
-/** Devuelve el usuario actual SOLO si su perfil es admin; si no, null. */
-async function requireAdmin() {
+/** ¿La cuenta está vencida por fecha? */
+function isExpired(accessExpiresAt: string | null): boolean {
+  return (
+    !!accessExpiresAt && new Date(accessExpiresAt).getTime() < Date.now()
+  );
+}
+
+/**
+ * Devuelve el usuario actual SOLO si su cuenta sigue VIGENTE (activa y no
+ * vencida), validado en el servidor en CADA acción —no solo al hacer login—.
+ * Cierra el hueco de una sesión viva cuya cuenta fue desactivada/vencida.
+ */
+async function requireActiveUser() {
   const supabase = createClient();
   const {
     data: { user },
@@ -43,10 +54,19 @@ async function requireAdmin() {
   if (!user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_active, access_expires_at")
     .eq("id", user.id)
     .single();
-  return profile?.role === "admin" ? user : null;
+  if (!profile || !profile.is_active || isExpired(profile.access_expires_at)) {
+    return null;
+  }
+  return { user, role: profile.role as "admin" | "cliente" };
+}
+
+/** Devuelve el usuario actual SOLO si es admin y su cuenta está vigente. */
+async function requireAdmin() {
+  const active = await requireActiveUser();
+  return active && active.role === "admin" ? active.user : null;
 }
 
 function expiryFromDays(days: number | null): string | null {
@@ -207,11 +227,10 @@ export async function setAccountActive(
 export async function changeOwnPassword(
   newPassword: string
 ): Promise<ActionResult> {
+  // Solo una cuenta vigente (activa y no vencida) puede cambiar su contraseña.
+  const active = await requireActiveUser();
+  if (!active) return { ok: false, error: "No autorizado." };
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "No autorizado." };
   if (!newPassword || newPassword.length < 6) {
     return { ok: false, error: "La contraseña debe tener al menos 6 caracteres." };
   }

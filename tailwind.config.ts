@@ -40,8 +40,12 @@ const config: Config = {
       },
       keyframes: {
         "aurora-drift": {
-          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(2%, -3%, 0) scale(1.08)" },
+          "0%, 100%": { transform: "translate3d(0,0,0)" },
+          "50%": { transform: "translate3d(3%, -4%, 0)" },
+        },
+        "aurora-breathe": {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.55" },
+          "50%": { transform: "scale(1.14)", opacity: "1" },
         },
         shimmer: {
           "100%": { transform: "translateX(100%)" },
@@ -58,7 +62,8 @@ const config: Config = {
         },
       },
       animation: {
-        "aurora-drift": "aurora-drift 14s ease-in-out infinite",
+        "aurora-drift": "aurora-drift 22s ease-in-out infinite",
+        "aurora-breathe": "aurora-breathe 9s ease-in-out infinite",
         shimmer: "shimmer 1.8s infinite",
         "shake-x": "shake-x 0.4s var(--ease-spring)",
         "now-pulse": "now-pulse 2.4s ease-out infinite",

@@ -28,6 +28,7 @@ type AppContextValue = {
   role: Role;
   username: string;
   businessName: string;
+  accessExpiresAt: string | null;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -40,6 +41,7 @@ export function AppProviders({
   role = "cliente",
   username = "",
   businessName = "",
+  accessExpiresAt = null,
 }: {
   children: React.ReactNode;
   initialSkin?: SkinAttr;
@@ -47,6 +49,7 @@ export function AppProviders({
   role?: Role;
   username?: string;
   businessName?: string;
+  accessExpiresAt?: string | null;
 }) {
   const [skinAttr, setSkinAttr] = useState<SkinAttr>(initialSkin);
   const [theme, setThemeState] = useState<ThemeMode>("dark");
@@ -100,6 +103,7 @@ export function AppProviders({
       role,
       username,
       businessName,
+      accessExpiresAt,
     }),
     [
       businessType,
@@ -110,6 +114,7 @@ export function AppProviders({
       role,
       username,
       businessName,
+      accessExpiresAt,
     ]
   );
 

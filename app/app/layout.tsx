@@ -56,6 +56,7 @@ export default async function AppLayout({
       role={role}
       username={profile.username}
       businessName={profile.business_name}
+      accessExpiresAt={profile.access_expires_at}
     >
       {/* Aplica la piel de la cuenta antes del primer paint (sin parpadeo). */}
       <script

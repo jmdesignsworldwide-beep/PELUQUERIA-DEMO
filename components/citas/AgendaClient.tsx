@@ -17,10 +17,17 @@ import {
   Clock,
   Plus,
   UserPlus,
+  Wallet,
+  BadgeCheck,
 } from "lucide-react";
 import { useApp } from "@/components/providers/AppProviders";
+import { useMoney } from "@/components/providers/MoneyProvider";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { CobroPanel, CobroDraft } from "@/components/cobro/CobroPanel";
+import { servicePrice } from "@/lib/money/prices";
+import { formatRD } from "@/lib/money/calc";
 import { DatePicker } from "./DatePicker";
 import {
   Appointment,
@@ -135,6 +142,7 @@ function Block({
   invalidDrag,
   shaking,
   overlay,
+  paid,
   left,
   width,
   onPointerDown,
@@ -148,6 +156,7 @@ function Block({
   invalidDrag?: boolean;
   shaking?: boolean;
   overlay?: boolean;
+  paid?: boolean;
   left?: number;
   width?: number;
   onPointerDown?: (e: React.PointerEvent, appt: Appointment, top: number) => void;
@@ -222,6 +231,19 @@ function Block({
         className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
         style={{ background: statusColor(appt.status, selected ? 1 : 0.9) }}
       />
+      {/* indicador de cobrado */}
+      {paid && (
+        <span
+          className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full"
+          style={{
+            background: statusColor("completada", 1),
+            color: "rgb(var(--surface))",
+          }}
+          aria-label="Cobrada"
+        >
+          <BadgeCheck size={11} strokeWidth={3} />
+        </span>
+      )}
 
       <div className="relative h-full px-2 py-1.5 pl-2.5">
         <div className="flex items-center gap-1.5">
@@ -255,8 +277,21 @@ function Block({
 
 export function AgendaClient() {
   const { businessType: skin, skin: skinObj } = useApp();
+  const { payments } = useMoney();
   const vocab = skinObj.vocab;
   const professionals = useMemo(() => professionalsFor(skin), [skin]);
+
+  // Citas ya cobradas (leído de la fuente única del dinero).
+  const paidApptIds = useMemo(
+    () =>
+      new Set(
+        payments
+          .filter((p) => p.status === "pagado" && p.appointmentId)
+          .map((p) => p.appointmentId as string)
+      ),
+    [payments]
+  );
+  const [cobroDraft, setCobroDraft] = useState<CobroDraft | null>(null);
 
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -476,6 +511,20 @@ export function AgendaClient() {
 
   function setStatus(apptId: string, status: StatusKey) {
     setOverrides((prev) => ({ ...prev, [apptId]: { ...prev[apptId], status } }));
+  }
+
+  function openCobro(appt: Appointment) {
+    const pro = professionals.find((p) => p.id === appt.professionalId);
+    setDetailId(null); // cerramos el detalle para no apilar modales
+    setCobroDraft({
+      source: "cita",
+      appointmentId: appt.id,
+      clientName: appt.client,
+      service: appt.service,
+      professionalId: appt.professionalId,
+      professionalName: pro?.name ?? appt.professionalId,
+      serviceAmount: servicePrice(skin, appt.service),
+    });
   }
 
   // walkIn=true → cliente "Sin cita" (llegó sin reservar). false → cita nueva.
@@ -833,6 +882,7 @@ export function AgendaClient() {
                             index={i}
                             selected={a.id === selectedApptId}
                             shaking={a.id === shakeId}
+                            paid={paidApptIds.has(a.id)}
                             onPointerDown={startDrag}
                           />
                         ))}
@@ -968,6 +1018,37 @@ export function AgendaClient() {
               </div>
             </div>
 
+            {/* Cobro: aparece cuando la cita está completada */}
+            {paidApptIds.has(detailAppt.id) ? (
+              <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2/40 px-3 py-2.5 text-sm">
+                <BadgeCheck
+                  size={18}
+                  style={{ color: statusColor("completada", 1) }}
+                />
+                <span className="font-medium">Cita cobrada</span>
+                {(() => {
+                  const pago = payments.find(
+                    (p) => p.appointmentId === detailAppt.id && p.status === "pagado"
+                  );
+                  return pago ? (
+                    <span className="ml-auto tabular text-muted">
+                      {formatRD(pago.total)}
+                    </span>
+                  ) : null;
+                })()}
+              </div>
+            ) : detailAppt.status === "completada" ? (
+              <Button fullWidth onClick={() => openCobro(detailAppt)}>
+                <Wallet size={16} />
+                Cobrar
+              </Button>
+            ) : (
+              <p className="text-[11px] text-muted">
+                Marca la cita como <span className="text-fg">Completada</span> para
+                poder cobrarla.
+              </p>
+            )}
+
             <p className="text-[11px] text-muted">
               Consejo: arrastra el bloque en la rejilla para reprogramarlo a otra
               hora o {vocab.professional.toLowerCase()}.
@@ -975,6 +1056,13 @@ export function AgendaClient() {
           </div>
         )}
       </Modal>
+
+      {/* Panel de cobro (la cita "pagada" se deriva sola de la fuente única) */}
+      <CobroPanel
+        open={!!cobroDraft}
+        draft={cobroDraft}
+        onClose={() => setCobroDraft(null)}
+      />
     </div>
   );
 }

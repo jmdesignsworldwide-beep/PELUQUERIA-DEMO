@@ -81,7 +81,7 @@ export function LinkReservasCard() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border glass">
+    <div className="overflow-hidden rounded-2xl border border-border glass shadow-soft">
       <div
         aria-hidden
         className="pointer-events-none h-px"

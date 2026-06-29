@@ -12,6 +12,7 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { LinkReservasCard } from "./LinkReservasCard";
 import { CuentasAdmin } from "./CuentasAdmin";
 import { MiCuentaCard } from "./MiCuentaCard";
+import { DatosNegocioCard } from "./DatosNegocioCard";
 
 export function ConfiguracionClient() {
   const { role, businessName, skin } = useApp();
@@ -54,14 +55,11 @@ export function ConfiguracionClient() {
       )}
 
       <RevealItem>
-        <MiCuentaCard />
+        <DatosNegocioCard />
       </RevealItem>
 
-      {/* Próxima sección (7.5): datos del negocio + facturación simulada. */}
       <RevealItem>
-        <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
-          Próximamente aquí: datos del negocio y facturación (simulada).
-        </div>
+        <MiCuentaCard />
       </RevealItem>
     </Reveal>
   );

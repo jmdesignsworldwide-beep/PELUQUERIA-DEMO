@@ -6,6 +6,7 @@
 
 import type { BusinessType } from "@/lib/skins";
 import { professionalsFor } from "@/components/citas/data";
+import { servicesFor } from "@/lib/catalog/services";
 import { toCents, pctOfCents } from "./calc";
 import {
   DEFAULT_COMMISSION_PCT,
@@ -39,29 +40,12 @@ function pick<T>(rng: () => number, arr: T[]): T {
 }
 
 /* Catálogo de servicios con precio (pesos) por piel. */
+// Los servicios sembrados salen del CATÁLOGO ÚNICO → mismos nombres y precios
+// que en Servicios, el cobro y la reserva (coherencia total del organismo).
 type Svc = { name: string; price: number };
-const SERVICES: Record<BusinessType, Svc[]> = {
-  salon: [
-    { name: "Blower", price: 600 },
-    { name: "Corte y peinado", price: 1000 },
-    { name: "Manicure", price: 450 },
-    { name: "Pedicure", price: 600 },
-    { name: "Tinte", price: 2800 },
-    { name: "Mechas", price: 5000 },
-    { name: "Balayage", price: 9000 },
-    { name: "Keratina", price: 6000 },
-    { name: "Maquillaje social", price: 2500 },
-  ],
-  barberia: [
-    { name: "Corte clásico", price: 400 },
-    { name: "Degradado", price: 550 },
-    { name: "Corte + barba", price: 750 },
-    { name: "Perfilado", price: 300 },
-    { name: "Afeitado a navaja", price: 500 },
-    { name: "Tinte", price: 700 },
-    { name: "Ritual completo", price: 1200 },
-  ],
-};
+function servicesForSeed(skin: BusinessType): Svc[] {
+  return servicesFor(skin).map((s) => ({ name: s.name, price: s.price }));
+}
 
 const CLIENTS: Record<BusinessType, string[]> = {
   salon: [
@@ -102,7 +86,7 @@ function makePayment(
   i: number,
   ncfSeq: number
 ): Payment {
-  const svc = pick(rng, SERVICES[skin]);
+  const svc = pick(rng, servicesForSeed(skin));
   const pro = pick(rng, pros);
   const client = pick(rng, CLIENTS[skin]);
 

@@ -24,7 +24,7 @@ import { DEFAULT_COMMISSION_PCT } from "@/lib/money/types";
 import type { CashClose, Expense, Payment } from "@/lib/money/types";
 import { seedExpenses, seedPayments } from "@/lib/money/seed";
 
-const STORAGE_VERSION = "v2";
+const STORAGE_VERSION = "v3";
 
 function storageKey(skin: string) {
   return `jm-money-${STORAGE_VERSION}-${skin}`;

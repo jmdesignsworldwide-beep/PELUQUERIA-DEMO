@@ -158,7 +158,7 @@ export function FidelizacionClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.02, 0.25), duration: 0.22 }}
               onClick={() => setOpenName(c.name)}
-              className="flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left transition-colors hover:border-accent/40"
+              className="flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2/30 p-3 text-left shadow-soft transition-premium hover:border-accent/40 hover:shadow-pop"
             >
               <Avatar name={c.name} />
               <div className="min-w-0 flex-1">

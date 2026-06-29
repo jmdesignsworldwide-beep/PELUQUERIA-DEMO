@@ -66,7 +66,7 @@ export function ProveedoresClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(i * 0.03, 0.25), duration: 0.22 }}
             onClick={() => setDetailId(s.id)}
-            className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-layered transition-colors hover:border-accent/40"
+            className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-5"
           >
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-accent"><Truck size={18} /></span>
             <div className="min-w-0 flex-1">

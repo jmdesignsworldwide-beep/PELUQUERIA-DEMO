@@ -69,7 +69,7 @@ export function VentasClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.03, 0.25), duration: 0.22 }}
               onClick={() => setSel(p)}
-              className="group flex items-center justify-between gap-3 rounded-2xl border border-border glass p-4 text-left shadow-layered transition-colors hover:border-accent/40"
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-border glass p-4 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-5"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{p.name}</p>

@@ -68,7 +68,7 @@ export function EmpleadosClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(i * 0.03, 0.25), duration: 0.22 }}
             onClick={() => setOpenId(e.id)}
-            className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-layered transition-colors hover:border-accent/40"
+            className="group flex items-center gap-3 rounded-2xl border border-border glass p-4 text-left shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-5"
           >
             <Avatar name={e.name} hue={e.hue} size={46} />
             <div className="min-w-0 flex-1">

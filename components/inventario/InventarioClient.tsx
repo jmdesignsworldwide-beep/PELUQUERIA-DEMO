@@ -121,7 +121,7 @@ export function InventarioClient() {
               transition={{ delay: Math.min(i * 0.02, 0.25), duration: 0.22 }}
               onClick={() => setDetailId(p.id)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-xl border bg-surface-2/30 p-3 text-left transition-colors hover:border-accent/40",
+                "flex w-full items-center gap-3 rounded-xl border bg-surface-2/30 p-3 text-left shadow-soft transition-premium hover:border-accent/40 hover:shadow-pop",
                 low ? "border-[color:rgb(var(--st-pendiente)/0.5)]" : "border-border"
               )}
             >

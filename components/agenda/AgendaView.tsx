@@ -26,7 +26,7 @@ import { useApp } from "@/components/providers/AppProviders";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/clients/Avatar";
-import { Calendar } from "@/components/booking/Calendar";
+import { MiniCalendar } from "./MiniCalendar";
 import { cn } from "@/lib/cn";
 import { formatRD } from "@/lib/format";
 import { rdParts } from "@/lib/rd";
@@ -122,6 +122,8 @@ export function AgendaView({ data }: { data: AgendaData }) {
   const liveNow = useLiveNowMin(data.isToday);
   const nowMin = data.isToday ? liveNow : null;
   const mobileH = RANGE * MOBILE_PX;
+  const apptDateSet = useMemo(() => new Set(data.apptDates), [data.apptDates]);
+  const selectedId = detail?.id ?? null;
 
   const hourMarks = useMemo(() => {
     const marks: number[] = [];
@@ -224,6 +226,7 @@ export function AgendaView({ data }: { data: AgendaData }) {
             index={i}
             compact={compact}
             nowMin={nowMin}
+            selected={selectedId === a.id}
             dragging={draggingId === a.id}
             onDragStart={(e) => {
               e.dataTransfer.setData("text/plain", a.id);
@@ -322,12 +325,12 @@ export function AgendaView({ data }: { data: AgendaData }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2"
+                className="absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2"
               >
-                <Calendar
+                <MiniCalendar
                   value={data.dateStr}
-                  closedWeekdays={[]}
-                  onChange={(d) => {
+                  apptDates={apptDateSet}
+                  onPick={(d) => {
                     setShowCal(false);
                     goDate(d);
                   }}
@@ -551,21 +554,24 @@ export function AgendaView({ data }: { data: AgendaData }) {
           )}
         </AnimatePresence>
 
-        {detail && (
-          <DetailModal
-            appt={detail}
-            professionals={data.professionals}
-            dateStr={data.dateStr}
-            openMin={data.openMin}
-            closeMin={data.closeMin}
-            vocabProfessional={v.professional}
-            onClose={() => setDetail(null)}
-            onChanged={() => {
-              setDetail(null);
-              router.refresh();
-            }}
-          />
-        )}
+        <AnimatePresence>
+          {detail && (
+            <DetailModal
+              key={detail.id}
+              appt={detail}
+              professionals={data.professionals}
+              dateStr={data.dateStr}
+              openMin={data.openMin}
+              closeMin={data.closeMin}
+              vocabProfessional={v.professional}
+              onClose={() => setDetail(null)}
+              onChanged={() => {
+                setDetail(null);
+                router.refresh();
+              }}
+            />
+          )}
+        </AnimatePresence>
 
         <WalkinModal
           open={!!walkin}
@@ -605,6 +611,7 @@ function ApptBlock({
   compact,
   nowMin,
   dragging,
+  selected,
   onDragStart,
   onDragEnd,
   onClick,
@@ -614,6 +621,7 @@ function ApptBlock({
   compact: boolean;
   nowMin: number | null;
   dragging: boolean;
+  selected: boolean;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   onClick: () => void;
@@ -646,13 +654,15 @@ function ApptBlock({
         stiffness: 320,
         damping: 26,
       }}
-      whileHover={{ scale: 1.02, zIndex: 40 }}
+      whileHover={{ scale: 1.02, y: -1, zIndex: 40 }}
       className={cn(
-        "group absolute inset-x-1 z-20 cursor-grab overflow-hidden rounded-lg shadow-sm active:cursor-grabbing",
+        "group absolute inset-x-1 z-20 cursor-grab overflow-hidden rounded-lg shadow-soft transition-shadow hover:shadow-card active:cursor-grabbing",
         compact ? "px-1.5 py-0.5" : "px-2 py-1",
         STATUS_BLOCK[appt.status],
         isLive && "shadow-glow ring-1 ring-accent/40",
-        dragging && "shadow-layered"
+        // Seleccionada → RESALTA (no se apaga): acento + elevación.
+        selected && "z-40 ring-2 ring-accent shadow-pop",
+        dragging && "shadow-pop"
       )}
       style={{
         top: `calc(${topPct(appt.startMin)}% + 1px)`,
@@ -737,8 +747,35 @@ function DetailModal({
   }
 
   return (
-    <Modal open onClose={onClose} title={appt.clientName}>
-      <div className="space-y-5">
+    <>
+      {/* Backdrop muy ligero: el calendario NO se oscurece. */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-40 bg-black/10"
+      />
+      <motion.aside
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ type: "spring", stiffness: 320, damping: 34 }}
+        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col border-l border-border bg-surface shadow-pop"
+      >
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            {appt.clientName}
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
         <div className="rounded-xl border border-border bg-surface-2/40 p-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="font-medium">{appt.serviceName}</span>
@@ -826,8 +863,9 @@ function DetailModal({
             Guardar cambio de hora / {vocabProfessional.toLowerCase()}
           </Button>
         )}
-      </div>
-    </Modal>
+        </div>
+      </motion.aside>
+    </>
   );
 }
 

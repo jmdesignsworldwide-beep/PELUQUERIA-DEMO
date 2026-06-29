@@ -56,6 +56,8 @@ export type AgendaData = {
   appts: AgAppt[];
   blocks: AgBlock[];
   services: AgService[];
+  /** Fechas RD (YYYY-MM-DD) con al menos una cita (para el mini-calendario). */
+  apptDates: string[];
 };
 
 function minOfDay(iso: string): number {
@@ -148,6 +150,22 @@ export async function getAgendaData(dateStr?: string): Promise<AgendaData | null
     reason: b.reason,
   }));
 
+  // Fechas con citas (ventana -35 .. +95 días) para los puntitos del picker.
+  const winStart = new Date(Date.now() - 35 * 86400000).toISOString();
+  const winEnd = new Date(Date.now() + 95 * 86400000).toISOString();
+  const { data: dateRows } = await supabase
+    .from("appointments")
+    .select("starts_at, is_cancelled")
+    .gte("starts_at", winStart)
+    .lt("starts_at", winEnd);
+  const apptDates = Array.from(
+    new Set(
+      (dateRows ?? [])
+        .filter((r) => !r.is_cancelled)
+        .map((r) => rdParts(new Date(r.starts_at)).dateStr)
+    )
+  );
+
   const todayStr = rdTodayDateStr();
   const isToday = date === todayStr;
   const nowMin = isToday ? rdParts(new Date()).minutesOfDay : null;
@@ -165,5 +183,6 @@ export async function getAgendaData(dateStr?: string): Promise<AgendaData | null
     services: ((srvRes.data ?? []) as { id: string; name: string; price: number | string }[]).map(
       (s) => ({ id: s.id, name: s.name, price: Number(s.price) })
     ),
+    apptDates,
   };
 }

@@ -9,6 +9,7 @@
 import { Settings, ShieldCheck } from "lucide-react";
 import { useApp } from "@/components/providers/AppProviders";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
+import { LinkReservasCard } from "./LinkReservasCard";
 
 export function ConfiguracionClient() {
   const { role, businessName, skin } = useApp();
@@ -39,12 +40,17 @@ export function ConfiguracionClient() {
         </div>
       </RevealItem>
 
-      {/* Las secciones reales se montan en las próximas piezas (7.2–7.5). */}
       <RevealItem>
-        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted">
+        <LinkReservasCard />
+      </RevealItem>
+
+      {/* Próximas secciones (7.3–7.5): gestión de cuentas (admin), datos del
+          negocio, facturación simulada, mi cuenta. */}
+      <RevealItem>
+        <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
           {isAdmin
-            ? "Panel de control en construcción: Tu link de reservas, gestión de cuentas, datos del negocio."
-            : "Panel de control en construcción: Tu link de reservas, datos del negocio."}
+            ? "Próximamente aquí: gestión de cuentas, datos del negocio y mi cuenta."
+            : "Próximamente aquí: datos del negocio y mi cuenta."}
         </div>
       </RevealItem>
     </Reveal>

@@ -19,7 +19,7 @@ export type NavItem = {
 
 /** Módulos del sistema. Ninguno es botón muerto: cada uno tiene su ruta. */
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/app", icon: LayoutDashboard, label: () => "Dashboard" },
+  { href: "/app", icon: LayoutDashboard, label: () => "Panel" },
   { href: "/app/citas", icon: CalendarDays, label: () => "Citas" },
   { href: "/app/clientes", icon: Users, label: (v) => v.customerPlural },
   {

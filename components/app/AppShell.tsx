@@ -102,6 +102,9 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // La agenda ocupa exactamente la pantalla (scroll interno de la rejilla);
+  // el resto de módulos usan el scroll normal del documento.
+  const isCitas = pathname.startsWith("/app/citas");
 
   // Cerrar el drawer al cambiar de ruta (nunca quedar atrapada).
   useEffect(() => {
@@ -168,7 +171,12 @@ export function AppShell({
       </AnimatePresence>
 
       {/* Columna principal */}
-      <div className="flex min-h-dvh flex-col lg:pl-64">
+      <div
+        className={cn(
+          "flex flex-col lg:pl-64",
+          isCitas ? "h-dvh overflow-hidden" : "min-h-dvh"
+        )}
+      >
         <header className="sticky top-0 z-20 border-b border-border glass">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex items-center gap-3">
@@ -203,9 +211,12 @@ export function AppShell({
 
         <main
           className={cn(
-            "mx-auto w-full flex-1 px-4 py-8 sm:px-6 sm:py-10",
-            // La agenda necesita más ancho para columnas densas y legibles.
-            pathname.startsWith("/app/citas") ? "max-w-7xl" : "max-w-5xl"
+            "w-full flex-1",
+            // La agenda ocupa toda la pantalla (alto y ancho); el resto de
+            // módulos van centrados con un ancho de lectura cómodo.
+            pathname.startsWith("/app/citas")
+              ? "flex min-h-0 flex-col p-3 sm:p-4"
+              : "mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10"
           )}
         >
           {children}

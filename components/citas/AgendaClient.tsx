@@ -26,7 +26,6 @@ import {
   Appointment,
   COL_MIN_WIDTH,
   GRID_END_MIN,
-  GRID_HEIGHT,
   GRID_START_MIN,
   HOUR_HEIGHT,
   PX_PER_MIN,
@@ -278,6 +277,21 @@ export function AgendaClient() {
   const [shakeId, setShakeId] = useState<string | null>(null);
 
   const columnsAreaRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const pxPerMinRef = useRef(PX_PER_MIN);
+  const [viewportH, setViewportH] = useState(0);
+
+  /* Mide el alto disponible del scroll para estirar las horas a pantalla. */
+  useEffect(() => {
+    if (!mounted) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => setViewportH(el.clientHeight);
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    return () => ro.disconnect();
+  }, [mounted]);
 
   /* Montaje: fija hoy/fecha reales y selección por defecto. */
   useEffect(() => {
@@ -397,7 +411,8 @@ export function AgendaClient() {
       );
       const rawTop = e.clientY - rect.top - drag.grabOffsetY;
       let start =
-        Math.round((rawTop / PX_PER_MIN + GRID_START_MIN) / SLOT_MIN) * SLOT_MIN;
+        Math.round((rawTop / pxPerMinRef.current + GRID_START_MIN) / SLOT_MIN) *
+        SLOT_MIN;
       start = Math.max(
         GRID_START_MIN,
         Math.min(start, GRID_END_MIN - drag.duration)
@@ -463,10 +478,11 @@ export function AgendaClient() {
     setOverrides((prev) => ({ ...prev, [apptId]: { ...prev[apptId], status } }));
   }
 
-  function addWalkIn() {
+  // walkIn=true → cliente "Sin cita" (llegó sin reservar). false → cita nueva.
+  function addAppointment(walkIn: boolean) {
     const pro = visiblePros[0];
     if (!pro) return;
-    const dur = 30;
+    const dur = walkIn ? 30 : 60;
     const others = byPro[pro.id] ?? [];
     // Primer hueco (desde ahora si es hoy, si no desde el inicio) que quepa.
     let start =
@@ -481,14 +497,14 @@ export function AgendaClient() {
     }
     if (start + dur > GRID_END_MIN) start = GRID_START_MIN;
     const appt: Appointment = {
-      id: `walkin-${date}-${pro.id}-${start}`,
+      id: `${walkIn ? "sincita" : "cita"}-${date}-${pro.id}-${start}`,
       professionalId: pro.id,
       date,
       start,
       duration: dur,
-      client: "Walk-in (sin cita)",
+      client: walkIn ? "Sin cita" : "Cita nueva",
       service: skin === "salon" ? "Corte y peinado" : "Corte clásico",
-      status: "en_proceso",
+      status: walkIn ? "en_proceso" : "pendiente",
     };
     setExtras((prev) => [...prev.filter((e) => e.id !== appt.id), appt]);
     setSelectedApptId(appt.id);
@@ -499,26 +515,38 @@ export function AgendaClient() {
   const hours: number[] = [];
   for (let h = START_HOUR; h <= END_HOUR; h++) hours.push(h);
 
+  // Alto de hora dinámico: estira 8am–8pm para llenar la pantalla; si no cabe,
+  // baja a un mínimo legible y aparece scroll vertical suave.
+  const NUM_HOURS = END_HOUR - START_HOUR;
+  const MIN_HOUR_H = 52;
+  const hourHeight =
+    viewportH > 0
+      ? Math.max(MIN_HOUR_H, Math.round((viewportH - HEADER_H) / NUM_HOURS))
+      : HOUR_HEIGHT;
+  const pxPerMin = hourHeight / 60;
+  const gridHeight = hourHeight * NUM_HOURS;
+  pxPerMinRef.current = pxPerMin;
+
   const columnBg = `
-    repeating-linear-gradient(to bottom, rgb(var(--border) / 0.55) 0px, rgb(var(--border) / 0.55) 1px, transparent 1px, transparent ${HOUR_HEIGHT}px),
-    repeating-linear-gradient(to bottom, transparent 0px, transparent ${HOUR_HEIGHT / 2}px, rgb(var(--border) / 0.22) ${HOUR_HEIGHT / 2}px, rgb(var(--border) / 0.22) ${HOUR_HEIGHT / 2 + 1}px, transparent ${HOUR_HEIGHT / 2 + 1}px, transparent ${HOUR_HEIGHT}px)
+    repeating-linear-gradient(to bottom, rgb(var(--border) / 0.55) 0px, rgb(var(--border) / 0.55) 1px, transparent 1px, transparent ${hourHeight}px),
+    repeating-linear-gradient(to bottom, transparent 0px, transparent ${hourHeight / 2}px, rgb(var(--border) / 0.22) ${hourHeight / 2}px, rgb(var(--border) / 0.22) ${hourHeight / 2 + 1}px, transparent ${hourHeight / 2 + 1}px, transparent ${hourHeight}px)
   `;
 
   const showNow =
     mounted && date === todayISO && now >= GRID_START_MIN && now <= GRID_END_MIN;
-  const nowTop = (now - GRID_START_MIN) * PX_PER_MIN;
+  const nowTop = (now - GRID_START_MIN) * pxPerMin;
 
   if (!mounted) {
     return (
-      <div className="space-y-4">
-        <div className="h-10 w-64 animate-pulse rounded-xl bg-surface-2" />
-        <div className="h-[520px] animate-pulse rounded-2xl bg-surface-2/60" />
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div className="h-10 w-64 shrink-0 animate-pulse rounded-xl bg-surface-2" />
+        <div className="min-h-0 flex-1 animate-pulse rounded-2xl bg-surface-2/60" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {/* ───────── Encabezado / título ───────── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -542,15 +570,15 @@ export function AgendaClient() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={addWalkIn}
+            onClick={() => addAppointment(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border glass px-3 text-sm text-fg transition-colors hover:border-accent/50 hover:text-accent"
           >
             <UserPlus size={15} />
-            <span className="hidden sm:inline">Walk-in</span>
+            <span className="hidden sm:inline">Sin cita</span>
           </button>
           <button
             type="button"
-            onClick={addWalkIn}
+            onClick={() => addAppointment(false)}
             className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-medium text-accent-contrast shadow-glow transition-[filter] hover:brightness-[1.06]"
           >
             <Plus size={16} />
@@ -660,15 +688,15 @@ export function AgendaClient() {
       )}
 
       {/* ───────── Cuerpo: sidebar + calendario ───────── */}
-      <div className="flex gap-4">
+      <div className="flex min-h-0 flex-1 gap-4">
         {/* Sidebar de profesionales (escritorio) */}
         {!isMobile && (
-          <aside className="hidden w-56 shrink-0 lg:block">
-            <div className="overflow-hidden rounded-2xl border border-border glass">
-              <p className="border-b border-border px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+          <aside className="hidden w-56 shrink-0 lg:flex">
+            <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border glass">
+              <p className="shrink-0 border-b border-border px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
                 {vocab.professionalPlural}
               </p>
-              <div className="max-h-[560px] space-y-0.5 overflow-y-auto p-1.5">
+              <div className="flex-1 space-y-0.5 overflow-y-auto p-1.5">
                 {professionals.map((p) => {
                   const active = selectedIds.includes(p.id);
                   const count = countFor(skin, p.id, date);
@@ -715,16 +743,16 @@ export function AgendaClient() {
         )}
 
         {/* Calendario */}
-        <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-border glass">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border glass">
           <div
             aria-hidden
-            className="pointer-events-none h-px"
+            className="pointer-events-none h-px shrink-0"
             style={{
               background:
                 "linear-gradient(90deg, transparent, rgb(var(--metallic) / 0.6), transparent)",
             }}
           />
-          <div className="overflow-auto" style={{ maxHeight: "min(72vh, 680px)" }}>
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
             <div
               className="w-full"
               style={{ minWidth: GUTTER_W + visiblePros.length * COL_MIN_WIDTH }}
@@ -758,7 +786,7 @@ export function AgendaClient() {
               </div>
 
               {/* Cuerpo de la rejilla */}
-              <div className="flex" style={{ height: GRID_HEIGHT }}>
+              <div className="flex" style={{ height: gridHeight }}>
                 {/* Columna de horas (sticky left) */}
                 <div
                   className="sticky left-0 z-20 shrink-0 border-r border-border glass"
@@ -769,7 +797,7 @@ export function AgendaClient() {
                       <div
                         key={h}
                         className="absolute right-2 -translate-y-1/2 text-[11px] tabular text-muted"
-                        style={{ top: (h - START_HOUR) * HOUR_HEIGHT }}
+                        style={{ top: (h - START_HOUR) * hourHeight }}
                       >
                         {h === START_HOUR ? "" : hourLabel(h)}
                       </div>
@@ -800,8 +828,8 @@ export function AgendaClient() {
                           <Block
                             key={a.id}
                             appt={a}
-                            top={(a.start - GRID_START_MIN) * PX_PER_MIN}
-                            height={a.duration * PX_PER_MIN}
+                            top={(a.start - GRID_START_MIN) * pxPerMin}
+                            height={a.duration * pxPerMin}
                             index={i}
                             selected={a.id === selectedApptId}
                             shaking={a.id === shakeId}
@@ -825,8 +853,8 @@ export function AgendaClient() {
                       return (
                         <Block
                           appt={{ ...a, start: drag.start }}
-                          top={(drag.start - GRID_START_MIN) * PX_PER_MIN}
-                          height={drag.duration * PX_PER_MIN}
+                          top={(drag.start - GRID_START_MIN) * pxPerMin}
+                          height={drag.duration * pxPerMin}
                           index={0}
                           selected={false}
                           dragging

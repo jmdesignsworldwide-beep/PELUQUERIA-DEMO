@@ -51,7 +51,7 @@ export const STATUSES: Record<StatusKey, StatusDef> = {
   confirmada: { key: "confirmada", label: "Confirmada", cssVar: "--st-confirmada" },
   en_proceso: { key: "en_proceso", label: "En proceso", cssVar: "--st-proceso" },
   completada: { key: "completada", label: "Completada", cssVar: "--st-completada" },
-  no_show: { key: "no_show", label: "No-show", cssVar: "--st-noshow" },
+  no_show: { key: "no_show", label: "No asistió", cssVar: "--st-noshow" },
   cancelada: { key: "cancelada", label: "Cancelada", cssVar: "--st-cancelada" },
 };
 
@@ -103,7 +103,7 @@ const PROFESSIONALS: Record<BusinessType, Professional[]> = {
     { id: "s4", name: "Paola D.", specialty: "Maquillaje", hue: 350 },
     { id: "s5", name: "Niurka P.", specialty: "Tratamientos", hue: 168 },
     { id: "s6", name: "Massiel V.", specialty: "Cejas & Pestañas", hue: 200 },
-    { id: "s7", name: "Scarlett A.", specialty: "Brushing", hue: 312 },
+    { id: "s7", name: "Scarlett A.", specialty: "Secado y peinado", hue: 312 },
   ],
   barberia: [
     { id: "b1", name: "Carlos M.", specialty: "Degradados", hue: 28 },
@@ -139,7 +139,7 @@ type ServiceDef = { name: string; duration: number };
 
 const SERVICES: Record<BusinessType, ServiceDef[]> = {
   salon: [
-    { name: "Brushing", duration: 30 },
+    { name: "Secado", duration: 30 },
     { name: "Diseño de cejas", duration: 30 },
     { name: "Corte y peinado", duration: 60 },
     { name: "Manicure", duration: 45 },

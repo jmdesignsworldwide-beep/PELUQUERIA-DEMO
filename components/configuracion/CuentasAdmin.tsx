@@ -25,6 +25,7 @@ import type { BusinessType } from "@/lib/skins";
 import {
   AccountRow,
   createClientAccount,
+  expireAccountNow,
   listAccounts,
   renewAccount,
   setAccountActive,
@@ -510,7 +511,7 @@ function DetalleCuentaModal({
             </div>
           </div>
 
-          <div className="border-t border-border pt-3">
+          <div className="space-y-2 border-t border-border pt-3">
             <Button
               fullWidth
               variant="secondary"
@@ -520,6 +521,14 @@ function DetalleCuentaModal({
               <Power size={15} />
               {account.is_active ? "Desactivar cuenta" : "Activar cuenta"}
             </Button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => run(() => expireAccountNow(account.id))}
+              className="w-full rounded-xl px-3 py-2 text-xs text-muted transition-colors hover:text-[color:rgb(var(--st-cancelada))]"
+            >
+              Vencer ahora (simular para probar el bloqueo)
+            </button>
           </div>
         </div>
       )}

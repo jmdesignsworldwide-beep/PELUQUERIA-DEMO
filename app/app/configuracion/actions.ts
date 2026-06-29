@@ -173,6 +173,20 @@ export async function setNoExpiry(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
+/** Forzar el vencimiento (para PROBAR el bloqueo por fecha) (admin). */
+export async function expireAccountNow(id: string): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { ok: false, error: "No autorizado." };
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const service = createServiceClient();
+  const { error } = await service
+    .from("profiles")
+    .update({ access_expires_at: yesterday })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 /** Activar / desactivar una cuenta (admin). */
 export async function setAccountActive(
   id: string,

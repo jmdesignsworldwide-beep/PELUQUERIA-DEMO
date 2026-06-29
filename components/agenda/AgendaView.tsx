@@ -50,9 +50,12 @@ const RANGE_OPEN = 8 * 60;
 const RANGE_CLOSE = 20 * 60;
 const RANGE = RANGE_CLOSE - RANGE_OPEN;
 const SLOT = 30;
-const MOBILE_PX = 1.4;
-const topPct = (min: number) => ((min - RANGE_OPEN) / RANGE) * 100;
-const hPct = (dur: number) => (dur / RANGE) * 100;
+// Escala en píxeles: densidad cómoda con scroll vertical (8am–8pm).
+const PX_PER_MIN = 1; // 60 px por hora
+const GRID_H = RANGE * PX_PER_MIN;
+const HEADER_H = 44; // alto de encabezados sticky
+const topPx = (min: number) => (min - RANGE_OPEN) * PX_PER_MIN;
+const hPx = (dur: number) => dur * PX_PER_MIN;
 
 const ServicesContext = createContext<
   { id: string; name: string; price: number }[]
@@ -121,7 +124,6 @@ export function AgendaView({ data }: { data: AgendaData }) {
 
   const liveNow = useLiveNowMin(data.isToday);
   const nowMin = data.isToday ? liveNow : null;
-  const mobileH = RANGE * MOBILE_PX;
   const apptDateSet = useMemo(() => new Set(data.apptDates), [data.apptDates]);
   const selectedId = detail?.id ?? null;
 
@@ -161,12 +163,24 @@ export function AgendaView({ data }: { data: AgendaData }) {
   }
 
   // ── Columna de un profesional ──
-  function ProColumn({ proId, compact }: { proId: string; compact: boolean }) {
+  function ProColumn({ proId }: { proId: string }) {
     const slots: number[] = [];
     for (let t = RANGE_OPEN; t < RANGE_CLOSE; t += SLOT) slots.push(t);
+    const hours: number[] = [];
+    for (let h = RANGE_OPEN; h <= RANGE_CLOSE; h += 60) hours.push(h);
     const appts = apptsByPro(proId);
     return (
-      <div className="relative h-full">
+      <div className="relative" style={{ height: GRID_H }}>
+        {/* líneas de hora ultra-finas (1px) */}
+        {hours.map((h) => (
+          <div
+            key={h}
+            className="pointer-events-none absolute inset-x-0 border-t border-border/60"
+            style={{ top: topPx(h) }}
+          />
+        ))}
+
+        {/* franjas clicables (walk-in / soltar) cada media hora */}
         {slots.map((t) => {
           const key = `${proId}:${t}`;
           return (
@@ -183,10 +197,10 @@ export function AgendaView({ data }: { data: AgendaData }) {
                 if (id) onDrop(proId, t, id);
               }}
               className={cn(
-                "absolute inset-x-0 cursor-pointer border-t border-border/40 transition-colors",
-                dragOver === key ? "bg-accent/20" : "hover:bg-surface-2/40"
+                "absolute inset-x-0 cursor-pointer transition-colors",
+                dragOver === key ? "bg-accent/20" : "hover:bg-surface-2/50"
               )}
-              style={{ top: `${topPct(t)}%`, height: `${hPct(SLOT)}%` }}
+              style={{ top: topPx(t), height: hPx(SLOT) }}
             />
           );
         })}
@@ -197,8 +211,8 @@ export function AgendaView({ data }: { data: AgendaData }) {
             key={b.id}
             className="absolute inset-x-1 z-10 flex items-center justify-between gap-1 overflow-hidden rounded-md border border-dashed border-border bg-surface-2/80 px-1.5 text-[11px] text-muted"
             style={{
-              top: `${topPct(b.startMin)}%`,
-              height: `${hPct(b.endMin - b.startMin)}%`,
+              top: topPx(b.startMin),
+              height: hPx(b.endMin - b.startMin),
               minHeight: 18,
             }}
           >
@@ -224,7 +238,6 @@ export function AgendaView({ data }: { data: AgendaData }) {
             key={a.id}
             appt={a}
             index={i}
-            compact={compact}
             nowMin={nowMin}
             selected={selectedId === a.id}
             dragging={draggingId === a.id}
@@ -241,17 +254,17 @@ export function AgendaView({ data }: { data: AgendaData }) {
           />
         ))}
 
-        {/* línea de ahora viva */}
+        {/* línea de ahora viva (2px, acento, con punto) */}
         {nowMin !== null && nowMin >= RANGE_OPEN && nowMin <= RANGE_CLOSE && (
           <div
             className="pointer-events-none absolute inset-x-0 z-30 flex items-center"
-            style={{ top: `${topPct(nowMin)}%` }}
+            style={{ top: topPx(nowMin) }}
           >
             <span className="relative flex h-2.5 w-2.5 -translate-x-1">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
             </span>
-            <span className="h-[2px] flex-1 bg-accent/70" />
+            <span className="h-[2px] flex-1 bg-accent" />
           </div>
         )}
       </div>
@@ -442,31 +455,35 @@ export function AgendaView({ data }: { data: AgendaData }) {
           </aside>
 
           {/* Rejilla */}
-          <div className="min-w-0 flex-1 rounded-2xl border border-border glass p-3">
+          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-border glass">
             {shownPros.length === 0 ? (
-              <div className="grid h-[calc(100dvh-17rem)] place-items-center text-sm text-muted">
+              <div className="grid h-[calc(100dvh-16rem)] place-items-center text-sm text-muted">
                 Selecciona uno o varios {v.professionalPlural.toLowerCase()} a la izquierda.
               </div>
             ) : (
-              <div className="flex h-[calc(100dvh-17rem)] min-h-[420px]">
-                <div className="flex w-12 shrink-0 flex-col">
-                  <div className="mb-1 h-11 shrink-0" />
-                  <div className="relative flex-1">
-                    {hourMarks.map((h) => (
-                      <span
-                        key={h}
-                        className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
-                        style={{ top: `${topPct(h)}%` }}
-                      >
-                        {fmtMin(h)}
-                      </span>
-                    ))}
+              <div className="max-h-[calc(100dvh-16rem)] min-h-[420px] overflow-auto">
+                <div className="flex min-w-full">
+                  {/* Canaleta de horas — sticky a la izquierda */}
+                  <div className="sticky left-0 z-20 w-14 shrink-0 bg-surface">
+                    <div
+                      className="sticky top-0 z-10 border-b border-border bg-surface"
+                      style={{ height: HEADER_H }}
+                    />
+                    <div className="relative" style={{ height: GRID_H }}>
+                      {hourMarks.map((h) => (
+                        <span
+                          key={h}
+                          className="absolute right-2 -translate-y-1/2 text-[11px] tabular text-muted"
+                          style={{ top: topPx(h) }}
+                        >
+                          {fmtMin(h)}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {/* Columnas anchas y legibles. Si caben, llenan el ancho
-                    (flex-1); si son muchas, mantienen ancho mínimo y aparece
-                    scroll horizontal suave — nunca se aprietan. */}
-                <div className="flex flex-1 overflow-x-auto">
+
+                  {/* Columnas anchas. Pocas → llenan el ancho; muchas → ancho
+                      mínimo y scroll horizontal suave. Encabezados sticky. */}
                   <AnimatePresence initial={false}>
                     {shownPros.map((p) => (
                       <motion.div
@@ -476,9 +493,12 @@ export function AgendaView({ data }: { data: AgendaData }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="flex min-w-[180px] flex-1 flex-col border-l border-border px-1.5"
+                        className="flex min-w-[180px] flex-1 flex-col border-l border-border"
                       >
-                        <div className="mb-1 flex h-11 shrink-0 items-center gap-2">
+                        <div
+                          className="glass sticky top-0 z-10 flex items-center gap-2 border-b border-border px-2"
+                          style={{ height: HEADER_H }}
+                        >
                           <Avatar name={p.name} size={26} />
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium leading-tight">
@@ -489,8 +509,8 @@ export function AgendaView({ data }: { data: AgendaData }) {
                             </p>
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <ProColumn proId={p.id} compact />
+                        <div className="px-1.5">
+                          <ProColumn proId={p.id} />
                         </div>
                       </motion.div>
                     ))}
@@ -520,21 +540,23 @@ export function AgendaView({ data }: { data: AgendaData }) {
               </button>
             ))}
           </div>
-          <div className="rounded-2xl border border-border glass p-3">
-            <div className="flex" style={{ height: mobileH }}>
-              <div className="relative w-12 shrink-0">
-                {hourMarks.map((h) => (
-                  <span
-                    key={h}
-                    className="absolute right-1 -translate-y-1/2 text-[10px] tabular text-muted"
-                    style={{ top: `${topPct(h)}%` }}
-                  >
-                    {fmtMin(h)}
-                  </span>
-                ))}
-              </div>
-              <div className="flex-1 border-l border-border px-1">
-                {mobilePro && <ProColumn proId={mobilePro} compact={false} />}
+          <div className="overflow-hidden rounded-2xl border border-border glass">
+            <div className="max-h-[calc(100dvh-15rem)] overflow-auto">
+              <div className="flex">
+                <div className="relative w-12 shrink-0" style={{ height: GRID_H }}>
+                  {hourMarks.map((h) => (
+                    <span
+                      key={h}
+                      className="absolute right-1 -translate-y-1/2 text-[11px] tabular text-muted"
+                      style={{ top: topPx(h) }}
+                    >
+                      {fmtMin(h)}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex-1 border-l border-border px-1.5">
+                  {mobilePro && <ProColumn proId={mobilePro} />}
+                </div>
               </div>
             </div>
           </div>
@@ -608,7 +630,6 @@ export function AgendaView({ data }: { data: AgendaData }) {
 function ApptBlock({
   appt,
   index,
-  compact,
   nowMin,
   dragging,
   selected,
@@ -618,7 +639,6 @@ function ApptBlock({
 }: {
   appt: AgAppt;
   index: number;
-  compact: boolean;
   nowMin: number | null;
   dragging: boolean;
   selected: boolean;
@@ -627,15 +647,12 @@ function ApptBlock({
   onClick: () => void;
 }) {
   const isLive = appt.status === "en_proceso";
+  const dur = appt.endMin - appt.startMin;
+  // Bloques cortos (< 45 min) no tienen alto para dos líneas: una sola línea.
+  const tiny = dur < 45;
   const progress =
     isLive && nowMin !== null
-      ? Math.min(
-          100,
-          Math.max(
-            0,
-            ((nowMin - appt.startMin) / (appt.endMin - appt.startMin)) * 100
-          )
-        )
+      ? Math.min(100, Math.max(0, ((nowMin - appt.startMin) / dur) * 100))
       : null;
 
   return (
@@ -645,28 +662,28 @@ function ApptBlock({
       onDragStart={onDragStart as unknown as (e: unknown) => void}
       onDragEnd={onDragEnd}
       onClick={onClick}
-      title={`${appt.clientName} · ${appt.serviceName} · ${fmtMin(appt.startMin)}`}
-      initial={{ opacity: 0, scale: 0.96 }}
+      title={`${appt.clientName} · ${appt.serviceName} · ${fmtMin(appt.startMin)}–${fmtMin(appt.endMin)}`}
+      initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: dragging ? 0.4 : 1, scale: 1 }}
       transition={{
-        delay: Math.min(index * 0.03, 0.3),
+        delay: Math.min(index * 0.045, 0.4),
         type: "spring",
         stiffness: 320,
         damping: 26,
       }}
-      whileHover={{ scale: 1.02, y: -1, zIndex: 40 }}
+      whileHover={{ y: -2, zIndex: 40 }}
       className={cn(
-        "group absolute inset-x-1 z-20 cursor-grab overflow-hidden rounded-lg shadow-soft transition-shadow hover:shadow-card active:cursor-grabbing",
-        compact ? "px-1.5 py-0.5" : "px-2 py-1",
+        "group absolute inset-x-1 z-20 flex cursor-grab flex-col overflow-hidden rounded-lg text-left shadow-soft transition-shadow hover:shadow-card active:cursor-grabbing",
+        tiny ? "justify-center px-2 py-0.5" : "gap-0.5 px-2.5 py-1.5",
         STATUS_BLOCK[appt.status],
         isLive && "shadow-glow ring-1 ring-accent/40",
-        // Seleccionada → RESALTA (no se apaga): acento + elevación.
-        selected && "z-40 ring-2 ring-accent shadow-pop",
+        // Seleccionada → RESALTA (no se apaga): borde de acento + glow.
+        selected && "z-40 ring-[1.5px] ring-accent shadow-glow",
         dragging && "shadow-pop"
       )}
       style={{
-        top: `calc(${topPct(appt.startMin)}% + 1px)`,
-        height: `calc(${hPct(appt.endMin - appt.startMin)}% - 2px)`,
+        top: topPx(appt.startMin) + 1,
+        height: hPx(dur) - 2,
         minHeight: 22,
       }}
     >
@@ -679,14 +696,16 @@ function ApptBlock({
         />
       )}
       <div className="relative flex items-center gap-1.5">
-        <Avatar name={appt.clientName} size={compact ? 16 : 20} />
-        <span className="truncate text-[11px] font-semibold leading-tight">
+        <Avatar name={appt.clientName} size={tiny ? 16 : 18} />
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-tight">
           {appt.clientName}
         </span>
       </div>
-      <p className="relative truncate text-[10px] leading-tight text-muted">
-        {fmtMin(appt.startMin)} · {appt.serviceName}
-      </p>
+      {!tiny && (
+        <p className="relative truncate pl-[26px] text-[11px] leading-tight text-muted">
+          {fmtMin(appt.startMin)} · {appt.serviceName}
+        </p>
+      )}
       {progress !== null && (
         <span
           className="absolute bottom-0 left-0 h-[3px] rounded-r bg-accent"

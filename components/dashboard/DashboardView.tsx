@@ -141,8 +141,11 @@ export function DashboardView({ data }: { data: DashboardData }) {
         </RevealItem>
       </Reveal>
 
+      {/* Panel: columna principal (2/3) + rail (1/3) — llena el ancho */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+       <div className="space-y-4 xl:col-span-2">
       {/* Próxima cita — la pieza más viva */}
-      <Reveal className="mb-6">
+      <Reveal>
         <RevealItem>
           <Card
             as="article"
@@ -188,7 +191,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
       </Reveal>
 
       {/* KPIs */}
-      <Reveal className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Citas de hoy */}
         <RevealItem>
           <KpiCard
@@ -254,47 +257,38 @@ export function DashboardView({ data }: { data: DashboardData }) {
           </KpiCard>
         </RevealItem>
       </Reveal>
+       </div>
 
-      {/* Resumen + tendencia */}
-      <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RevealItem>
-          <Card className="h-full p-6">
-            <p className="mb-4 text-sm font-medium text-muted">Resumen del día</p>
-            <div className="space-y-4">
-              <SummaryBar
-                label="Completadas"
-                count={data.completed}
-                total={data.todayCount}
-                tone="ok"
-              />
-              <SummaryBar
-                label="Pendientes"
-                count={data.pending}
-                total={data.todayCount}
-                tone="warn"
-              />
-              <SummaryBar
-                label="Canceladas"
-                count={data.cancelled}
-                total={data.todayCount}
-                tone="bad"
-              />
-            </div>
-          </Card>
-        </RevealItem>
+       {/* Rail derecho */}
+       <div className="space-y-4">
+        <Reveal>
+          <RevealItem>
+            <Card className="p-6">
+              <p className="mb-4 text-sm font-medium text-muted">Resumen del día</p>
+              <div className="space-y-4">
+                <SummaryBar label="Completadas" count={data.completed} total={data.todayCount} tone="ok" />
+                <SummaryBar label="Pendientes" count={data.pending} total={data.todayCount} tone="warn" />
+                <SummaryBar label="Canceladas" count={data.cancelled} total={data.todayCount} tone="bad" />
+              </div>
+            </Card>
+          </RevealItem>
+        </Reveal>
 
-        <RevealItem>
-          <Card className="h-full p-6">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium text-muted">
-                Ingresos · últimos 7 días
-              </p>
-              <TrendingUp size={16} className="text-accent" />
-            </div>
-            <RevenueSparkline data={data.trend} />
-          </Card>
-        </RevealItem>
-      </Reveal>
+        <Reveal>
+          <RevealItem>
+            <Card className="p-6">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted">
+                  Ingresos · últimos 7 días
+                </p>
+                <TrendingUp size={16} className="text-accent" />
+              </div>
+              <RevenueSparkline data={data.trend} />
+            </Card>
+          </RevealItem>
+        </Reveal>
+       </div>
+      </div>
 
       {/* ───────── Modales (profundidad al clic) ───────── */}
       <Modal

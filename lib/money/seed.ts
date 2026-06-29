@@ -147,7 +147,7 @@ function makePayment(
 
   return {
     id: `seed-${skin}-${date}-${i}`,
-    createdAt: `${date}T${8 + (i % 10)}:00:00`,
+    createdAt: `${date}T${String(8 + (i % 10)).padStart(2, "0")}:00:00`,
     date,
     source: rng() < 0.2 ? "producto" : "cita",
     clientName: client,

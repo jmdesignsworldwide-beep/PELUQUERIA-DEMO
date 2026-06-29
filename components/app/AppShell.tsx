@@ -212,10 +212,14 @@ export function AppShell({
         <main
           className={cn(
             "w-full flex-1",
-            // La agenda ocupa toda la pantalla (alto y ancho); el resto de
-            // módulos van centrados con un ancho de lectura cómodo.
-            pathname.startsWith("/app/citas")
+            // La agenda ocupa toda la pantalla (alto y ancho); Pagos y Caja
+            // usan un ancho amplio para tablas/tableros; el resto, lectura
+            // cómoda centrada.
+            isCitas
               ? "flex min-h-0 flex-col p-3 sm:p-4"
+              : pathname.startsWith("/app/pagos") ||
+                pathname.startsWith("/app/caja")
+              ? "mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
               : "mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10"
           )}
         >

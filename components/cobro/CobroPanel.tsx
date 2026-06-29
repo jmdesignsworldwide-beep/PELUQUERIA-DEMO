@@ -12,7 +12,9 @@ import { Check, Banknote, CreditCard, ArrowLeftRight, Split } from "lucide-react
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useApp } from "@/components/providers/AppProviders";
 import { useMoney, NewPayment } from "@/components/providers/MoneyProvider";
+import { professionalsFor } from "@/components/citas/data";
 import {
   computeCobro,
   fromCents,
@@ -91,6 +93,14 @@ export function CobroPanel({
   onConfirmed?: (payment: Payment) => void;
 }) {
   const { addPayment, commissionPctFor, today } = useMoney();
+  const { businessType } = useApp();
+  const pros = useMemo(() => professionalsFor(businessType), [businessType]);
+
+  // Cobro manual (desde el módulo Pagos): identidad editable.
+  const editable = draft?.source === "manual";
+  const [clientNameI, setClientNameI] = useState("");
+  const [serviceI, setServiceI] = useState("");
+  const [proIdI, setProIdI] = useState("");
 
   const [amount, setAmount] = useState("0");
   const [discKind, setDiscKind] = useState<"monto" | "porciento">("monto");
@@ -105,11 +115,17 @@ export function CobroPanel({
   const [success, setSuccess] = useState<Payment | null>(null);
   const lastOpen = useRef(false);
 
-  const commissionPct = draft ? commissionPctFor(draft.professionalId) : 0;
+  const activeProId = editable ? proIdI : draft?.professionalId;
+  const activeProName =
+    pros.find((p) => p.id === activeProId)?.name ?? draft?.professionalName ?? "";
+  const commissionPct = activeProId ? commissionPctFor(activeProId) : 0;
 
   // Reinicia el formulario cada vez que se abre con un draft nuevo.
   useEffect(() => {
     if (open && !lastOpen.current && draft) {
+      setClientNameI(draft.clientName);
+      setServiceI(draft.service);
+      setProIdI(draft.professionalId || pros[0]?.id || "");
       setAmount(String(draft.serviceAmount));
       setDiscKind("monto");
       setDiscVal("");
@@ -182,17 +198,19 @@ export function CobroPanel({
     [baseInput, splits, hasCash, cashReceived]
   );
 
-  const canConfirm = bd.totalCents > 0 && bd.isExact;
+  const identityOk =
+    !editable || (clientNameI.trim() !== "" && serviceI.trim() !== "" && !!proIdI);
+  const canConfirm = bd.totalCents > 0 && bd.isExact && identityOk;
 
   function confirm() {
     if (!draft || !canConfirm) return;
     const payload: NewPayment = {
       source: draft.source,
       appointmentId: draft.appointmentId,
-      clientName: draft.clientName,
-      service: draft.service,
-      professionalId: draft.professionalId,
-      professionalName: draft.professionalName,
+      clientName: editable ? clientNameI.trim() : draft.clientName,
+      service: editable ? serviceI.trim() : draft.service,
+      professionalId: activeProId ?? draft.professionalId,
+      professionalName: activeProName || draft.professionalName,
       date: today,
       serviceAmount: bd.serviceCents,
       discount: bd.discountCents,
@@ -265,15 +283,45 @@ export function CobroPanel({
             animate={{ opacity: 1 }}
             className="space-y-4"
           >
-            {/* Resumen de la cita */}
-            <div className="rounded-xl border border-border bg-surface-2/40 p-3">
-              <p className="font-display text-base font-semibold tracking-tight">
-                {draft.clientName}
-              </p>
-              <p className="text-sm text-muted">
-                {draft.service} · {draft.professionalName}
-              </p>
-            </div>
+            {/* Resumen de la cita (o identidad editable en cobro manual) */}
+            {editable ? (
+              <div className="space-y-2 rounded-xl border border-border bg-surface-2/40 p-3">
+                <input
+                  value={clientNameI}
+                  onChange={(e) => setClientNameI(e.target.value)}
+                  placeholder="Nombre del cliente"
+                  className={inputCls}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={serviceI}
+                    onChange={(e) => setServiceI(e.target.value)}
+                    placeholder="Servicio o producto"
+                    className={inputCls}
+                  />
+                  <select
+                    value={proIdI}
+                    onChange={(e) => setProIdI(e.target.value)}
+                    className={inputCls}
+                  >
+                    {pros.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-border bg-surface-2/40 p-3">
+                <p className="font-display text-base font-semibold tracking-tight">
+                  {draft.clientName}
+                </p>
+                <p className="text-sm text-muted">
+                  {draft.service} · {draft.professionalName}
+                </p>
+              </div>
+            )}
 
             {/* Monto del servicio */}
             <label className="block">
@@ -493,7 +541,7 @@ export function CobroPanel({
                 <Line label="Propina" value={formatRD2(bd.tipCents)} />
               )}
               <Line
-                label={`Comisión ${commissionPct}% · ${draft.professionalName}`}
+                label={`Comisión ${commissionPct}% · ${activeProName}`}
                 value={formatRD2(bd.commissionCents)}
                 muted
               />

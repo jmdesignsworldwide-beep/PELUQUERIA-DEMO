@@ -193,6 +193,16 @@ export function DashboardClient() {
     return cands[0] ?? null;
   }, [apptsHoy, now]);
 
+  // Vistazo a mañana (para el estado vacío de "Próxima cita").
+  const manana = useMemo(() => {
+    const t = addDays(today, 1);
+    const list = pros
+      .flatMap((p) => appointmentsFor(businessType, p.id, t))
+      .filter((a) => ACTIVE.includes(a.status))
+      .sort((a, b) => a.start - b.start);
+    return { count: list.length, first: list[0] ?? null };
+  }, [pros, businessType, today]);
+
   // Estilistas ahora: ocupado si tiene cita en curso.
   const estado = useMemo(() => {
     return pros.map((p) => {
@@ -278,7 +288,13 @@ export function DashboardClient() {
       {/* Próxima cita + Caja */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ProximaCita appt={proxima} now={now} mounted={mounted} proById={proById} />
+          <ProximaCita
+            appt={proxima}
+            now={now}
+            mounted={mounted}
+            proById={proById}
+            manana={manana}
+          />
         </div>
         <Panel href="/app/caja">
           <SectionTitle icon={Scale} href="/app/caja">
@@ -460,11 +476,13 @@ function ProximaCita({
   now,
   mounted,
   proById,
+  manana,
 }: {
   appt: Appointment | null;
   now: number;
   mounted: boolean;
   proById: (id: string) => { name: string; hue: number; specialty: string } | undefined;
+  manana: { count: number; first: Appointment | null };
 }) {
   if (!mounted) {
     return (
@@ -473,13 +491,44 @@ function ProximaCita({
   }
   if (!appt) {
     return (
-      <Panel href="/app/citas" className="flex flex-col justify-center">
+      <Panel href="/app/citas" className="flex h-full flex-col">
         <SectionTitle icon={CalendarClock} href="/app/citas">
           Próxima cita
         </SectionTitle>
-        <div className="flex flex-col items-center py-6 text-center">
-          <CalendarDays size={28} className="mb-2 text-muted" />
-          <p className="text-sm text-muted">No hay más citas por hoy.</p>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-2 text-center">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-accent-soft/50 text-accent">
+            <CalendarDays size={22} />
+          </span>
+          <div>
+            <p className="font-display text-xl font-semibold tracking-tight">
+              Día completo
+            </p>
+            <p className="mt-0.5 text-sm text-muted">No hay más citas por hoy.</p>
+          </div>
+          {manana.count > 0 && manana.first ? (
+            <div className="mt-1 w-full max-w-xs rounded-xl border border-border bg-surface-2/40 px-3 py-2.5 text-left">
+              <p className="text-[11px] uppercase tracking-wide text-muted">
+                Mañana · primera cita
+              </p>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <span className="truncate text-sm font-medium">
+                  {manana.first.client}
+                </span>
+                <span className="shrink-0 tabular text-sm font-semibold text-accent">
+                  {minutesToLabel(manana.first.start)}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-muted">
+                {manana.count} cita{manana.count === 1 ? "" : "s"} agendada
+                {manana.count === 1 ? "" : "s"}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[11px] text-muted">Mañana no hay citas aún.</p>
+          )}
+          <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-accent">
+            Ver agenda <ArrowRight size={13} />
+          </span>
         </div>
       </Panel>
     );

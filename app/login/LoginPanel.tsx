@@ -45,7 +45,7 @@ export function LoginPanel({ aviso }: { aviso: string | null }) {
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 240, damping: 17, delay: 0.06 }}
-            className="relative mb-5 grid h-[68px] w-[68px] place-items-center overflow-hidden rounded-2xl bg-accent text-accent-contrast shadow-glow"
+            className="glow-warm relative mb-5 grid h-[68px] w-[68px] place-items-center overflow-hidden rounded-2xl bg-accent text-accent-contrast"
           >
             <span
               aria-hidden

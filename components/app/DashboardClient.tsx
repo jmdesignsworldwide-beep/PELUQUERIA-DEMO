@@ -120,8 +120,8 @@ function Panel({
   const inner = (
     <div
       className={cn(
-        "group relative h-full overflow-hidden rounded-2xl border border-border glass p-5 shadow-soft transition-premium",
-        href && "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop",
+        "group relative h-full overflow-hidden rounded-2xl border border-border glass p-5 glow-edge-soft transition-premium",
+        href && "hover:-translate-y-0.5 hover:border-accent/40",
         className
       )}
     >
@@ -543,7 +543,7 @@ function ProximaCita({
     : `En ${Math.floor(falta / 60)} h ${falta % 60} min`;
 
   return (
-    <Panel href="/app/citas" className="flex h-full flex-col">
+    <Panel href="/app/citas" className="glow-edge flex h-full flex-col">
       <SectionTitle icon={CalendarClock} href="/app/citas">
         Próxima cita
       </SectionTitle>

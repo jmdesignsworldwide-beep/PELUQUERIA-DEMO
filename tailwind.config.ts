@@ -31,11 +31,13 @@ const config: Config = {
       },
       boxShadow: {
         glow: "0 0 0 1px rgb(var(--accent) / 0.25), 0 8px 30px -8px rgb(var(--accent) / 0.35)",
-        // Sombras tintadas por piel (--shadow-rgb), suaves y difusas (feel 21st.dev).
-        soft: "0 1px 2px rgb(var(--shadow-rgb) / 0.04), 0 4px 14px -6px rgb(var(--shadow-rgb) / 0.10)",
+        // GLOW DE COLOR por piel (rosa salón / cobre barbería). Halo VISIBLE
+        // alrededor del borde + una sombra de profundidad. Lo usan todas las
+        // tarjetas del sistema (shadow-soft en reposo, shadow-pop al hover).
+        soft: "0 0 16px 1px rgb(var(--accent) / 0.30), 0 3px 10px -5px rgb(var(--shadow-rgb) / 0.14)",
         layered:
-          "0 1px 2px rgb(var(--shadow-rgb) / 0.05), 0 6px 18px -10px rgb(var(--shadow-rgb) / 0.12), 0 20px 44px -24px rgb(var(--shadow-rgb) / 0.18)",
-        pop: "0 2px 6px rgb(var(--shadow-rgb) / 0.07), 0 14px 34px -14px rgb(var(--shadow-rgb) / 0.22)",
+          "0 0 20px 1px rgb(var(--accent) / 0.28), 0 6px 18px -10px rgb(var(--shadow-rgb) / 0.14), 0 20px 44px -24px rgb(var(--shadow-rgb) / 0.18)",
+        pop: "0 0 26px 4px rgb(var(--accent) / 0.45), 0 14px 34px -14px rgb(var(--shadow-rgb) / 0.22)",
       },
       borderRadius: {
         xl: "1rem",

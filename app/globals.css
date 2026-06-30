@@ -247,15 +247,11 @@ body {
   Para tarjetas, bloques de cita, paneles y elementos clave.
 */
 .glow-edge-soft {
-  box-shadow:
-    0 0 0 1px rgb(var(--accent) / 0.12),
-    0 0 16px -4px rgb(var(--accent) / 0.22);
+  box-shadow: 0 0 16px 1px rgb(var(--accent) / 0.32);
 }
 /* Más presente para elementos CLAVE (definido después → gana si coexisten). */
 .glow-edge {
-  box-shadow:
-    0 0 0 1px rgb(var(--accent) / 0.18),
-    0 0 24px -3px rgb(var(--accent) / 0.34);
+  box-shadow: 0 0 22px 3px rgb(var(--accent) / 0.45);
 }
 
 /* Glass más presente para barras/headers que necesitan separarse del fondo.

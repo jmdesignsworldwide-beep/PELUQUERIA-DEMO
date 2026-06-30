@@ -58,9 +58,13 @@ export function ConfiguracionClient() {
         <DatosNegocioCard />
       </RevealItem>
 
-      <RevealItem>
-        <MiCuentaCard />
-      </RevealItem>
+      {/* "Mi cuenta" (cambiar contraseña): SOLO admin. El cliente no cambia su
+          propia clave — la controla el admin. Validado también en el servidor. */}
+      {isAdmin && (
+        <RevealItem>
+          <MiCuentaCard />
+        </RevealItem>
+      )}
     </Reveal>
   );
 }

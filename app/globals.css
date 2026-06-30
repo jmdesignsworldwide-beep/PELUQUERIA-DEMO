@@ -32,8 +32,8 @@
   --surface-2: 248 240 235;
   --border: 232 216 214;
   --fg: 43 31 35;
-  --muted: 124 106 112;
-  --accent: 183 105 120;          /* dusty rose */
+  --muted: 106 90 96;             /* gris cálido legible (AA) */
+  --accent: 150 72 88;            /* rosa profundo legible como texto (AA) */
   --accent-soft: 232 205 211;
   --accent-contrast: 255 252 250; /* texto sobre acento */
   --metallic: 176 141 87;         /* champagne */
@@ -68,8 +68,8 @@
   --surface-2: 235 231 224;
   --border: 219 213 204;
   --fg: 28 28 30;
-  --muted: 102 99 94;
-  --accent: 160 92 54;            /* cobre envejecido */
+  --muted: 94 90 84;              /* gris tierra legible (AA) */
+  --accent: 138 76 40;            /* cobre profundo legible como texto (AA) */
   --accent-soft: 226 210 196;
   --accent-contrast: 252 249 245;
   --metallic: 150 120 75;         /* dorado envejecido */
@@ -106,7 +106,7 @@
 [data-skin="salon"][data-theme="light"] {
   --st-pendiente: 184 130 48;     /* ámbar suave */
   --st-confirmada: 86 118 178;    /* azul empolvado */
-  --st-proceso: 183 105 120;      /* = acento rosa */
+  --st-proceso: 150 72 88;        /* = acento rosa */
   --st-completada: 86 148 108;    /* verde salvia */
   --st-noshow: 138 128 132;       /* gris cálido */
   --st-cancelada: 188 94 102;     /* rojo suave */
@@ -123,7 +123,7 @@
 [data-skin="barberia"][data-theme="light"] {
   --st-pendiente: 176 126 50;     /* ámbar tostado */
   --st-confirmada: 92 116 156;    /* azul pizarra terroso */
-  --st-proceso: 160 92 54;        /* = acento cobre */
+  --st-proceso: 138 76 40;        /* = acento cobre */
   --st-completada: 108 140 92;    /* verde oliva */
   --st-noshow: 128 122 112;       /* gris cálido tierra */
   --st-cancelada: 176 94 74;      /* terracota */
@@ -145,8 +145,8 @@
   --surface-2: 238 235 230;
   --border: 224 219 211;
   --fg: 30 29 31;
-  --muted: 110 107 102;
-  --accent: 156 124 64;           /* dorado champagne sobrio */
+  --muted: 96 93 88;              /* gris legible (AA) */
+  --accent: 130 100 44;           /* dorado profundo legible como texto (AA) */
   --accent-soft: 230 222 208;
   --accent-contrast: 253 251 247;
   --metallic: 156 124 64;

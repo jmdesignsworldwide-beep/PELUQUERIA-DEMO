@@ -10,6 +10,11 @@ import { cn } from "@/lib/cn";
  * altura máxima + scroll interno (clave para móvil), cierre con Escape,
  * bloqueo de scroll del fondo y backdrop con blur.
  */
+const SIZE_CLASS = {
+  md: "sm:max-w-lg",
+  lg: "sm:max-w-2xl",
+} as const;
+
 export function Modal({
   open,
   onClose,
@@ -17,6 +22,7 @@ export function Modal({
   children,
   footer,
   className,
+  size = "md",
 }: {
   open: boolean;
   onClose: () => void;
@@ -24,6 +30,8 @@ export function Modal({
   children: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  /** Ancho del panel en escritorio. "lg" para formularios amplios. */
+  size?: "md" | "lg";
 }) {
   useEffect(() => {
     if (!open) return;
@@ -60,8 +68,9 @@ export function Modal({
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
             className={cn(
-              "relative z-10 flex max-h-[88vh] w-full flex-col overflow-hidden border border-border glass shadow-layered",
-              "rounded-t-2xl sm:max-w-lg sm:rounded-2xl",
+              "relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden border border-border glass shadow-layered",
+              "rounded-t-2xl sm:rounded-2xl",
+              SIZE_CLASS[size],
               className
             )}
           >
@@ -74,7 +83,7 @@ export function Modal({
               }}
             />
             {(title || true) && (
-              <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+              <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-6">
                 <h2 className="font-display text-lg font-semibold tracking-tight">
                   {title}
                 </h2>
@@ -88,11 +97,11 @@ export function Modal({
                 </button>
               </div>
             )}
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
               {children}
             </div>
             {footer && (
-              <div className="border-t border-border px-5 py-4">{footer}</div>
+              <div className="border-t border-border px-5 py-4 sm:px-6">{footer}</div>
             )}
           </motion.div>
         </div>

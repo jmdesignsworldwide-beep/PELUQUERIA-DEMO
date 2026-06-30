@@ -326,90 +326,105 @@ function CrearCuentaModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Crear cuenta de cliente">
-      <div className="space-y-4">
-        <Field label="Usuario">
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="ej. salon-maria"
-            className={inputCls}
-          />
-        </Field>
-        <Field label="Contraseña">
-          <div className="flex gap-2">
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={cn(inputCls, "tabular")}
-            />
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setPassword(genPassword())}
-              className="shrink-0"
-            >
-              <RefreshCw size={14} /> Generar
-            </Button>
+    <Modal open={open} onClose={onClose} title="Crear cuenta de cliente" size="lg">
+      <div className="space-y-5">
+        {/* Datos de acceso */}
+        <section className="space-y-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+            Datos de acceso
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Usuario">
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="ej. salon-maria"
+                className={inputCls}
+              />
+            </Field>
+            <Field label="Nombre del negocio">
+              <input
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="ej. Salón María"
+                className={inputCls}
+              />
+            </Field>
           </div>
-        </Field>
-        <Field label="Nombre del negocio">
-          <input
-            value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
-            placeholder="ej. Salón María"
-            className={inputCls}
-          />
-        </Field>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Piel del cliente">
-            <div className="flex rounded-xl border border-border p-0.5 text-sm">
-              {(["salon", "barberia"] as BusinessType[]).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setBusinessType(t)}
-                  className={cn(
-                    "flex-1 rounded-lg px-2 py-1.5 font-medium transition-colors",
-                    businessType === t
-                      ? "bg-accent text-accent-contrast"
-                      : "text-muted hover:text-fg"
-                  )}
-                >
-                  {t === "salon" ? "Salón" : "Barbería"}
-                </button>
-              ))}
+          <Field label="Contraseña">
+            <div className="flex gap-2">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={cn(inputCls, "tabular")}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setPassword(genPassword())}
+                className="shrink-0"
+              >
+                <RefreshCw size={14} /> Generar
+              </Button>
             </div>
           </Field>
-          <Field label="Acceso">
-            <select
-              value={dayChoice}
-              onChange={(e) => setDayChoice(Number(e.target.value))}
-              className={inputCls}
-            >
-              {DAY_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <p className="-mt-1 text-[11px] text-muted">
-          La piel define qué verá este cliente (salón o barbería). Solo aplica a
-          cuentas de cliente.
-        </p>
-        {dayChoice === -1 && (
-          <Field label="Días personalizados">
-            <input
-              inputMode="numeric"
-              value={customDays}
-              onChange={(e) => setCustomDays(e.target.value)}
-              placeholder="ej. 45"
-              className={cn(inputCls, "tabular")}
-            />
-          </Field>
-        )}
+        </section>
+
+        {/* Piel y acceso temporal */}
+        <section className="space-y-4 border-t border-border pt-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+            Piel y acceso
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Piel del cliente">
+              <div className="flex rounded-xl border border-border p-0.5 text-sm">
+                {(["salon", "barberia"] as BusinessType[]).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setBusinessType(t)}
+                    className={cn(
+                      "flex-1 rounded-lg px-2 py-1.5 font-medium transition-colors",
+                      businessType === t
+                        ? "bg-accent text-accent-contrast"
+                        : "text-muted hover:text-fg"
+                    )}
+                  >
+                    {t === "salon" ? "Salón" : "Barbería"}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field label="Acceso">
+              <select
+                value={dayChoice}
+                onChange={(e) => setDayChoice(Number(e.target.value))}
+                className={inputCls}
+              >
+                {DAY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          {dayChoice === -1 && (
+            <Field label="Días personalizados">
+              <input
+                inputMode="numeric"
+                value={customDays}
+                onChange={(e) => setCustomDays(e.target.value)}
+                placeholder="ej. 45"
+                className={cn(inputCls, "tabular")}
+              />
+            </Field>
+          )}
+          <p className="text-[11px] text-muted">
+            La piel define qué verá este cliente (salón o barbería). Solo aplica a
+            cuentas de cliente.
+          </p>
+        </section>
 
         {err && (
           <p
@@ -457,8 +472,8 @@ function DetalleCuentaModal({
       title={account ? account.username : ""}
     >
       {account && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-surface-2/40 p-3">
+        <div className="space-y-5">
+          <div className="rounded-xl border border-border bg-surface-2/40 p-4">
             <p className="text-sm font-medium">{account.business_name}</p>
             <p className="text-[11px] text-muted">
               {account.business_type === "salon" ? "Salón" : "Barbería"} ·{" "}

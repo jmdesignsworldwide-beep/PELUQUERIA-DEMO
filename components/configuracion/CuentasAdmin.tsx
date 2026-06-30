@@ -123,26 +123,26 @@ export function CuentasAdmin() {
             "linear-gradient(90deg, transparent, rgb(var(--metallic) / 0.6), transparent)",
         }}
       />
-      <div className="flex items-center justify-between p-5 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-4 sm:p-6 sm:pb-4">
         <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
           <Users size={13} /> Gestión de cuentas
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={load}
             aria-label="Recargar"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted transition-colors hover:text-accent"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border text-muted transition-colors hover:text-accent"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
           </button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
+          <Button size="sm" onClick={() => setCreateOpen(true)} className="shrink-0">
             <UserPlus size={15} /> Crear cuenta
           </Button>
         </div>
       </div>
 
-      <div className="px-5 pb-5">
+      <div className="px-5 pb-6 sm:px-6">
         {error ? (
           <div
             className="rounded-xl px-3 py-2 text-sm"
@@ -188,8 +188,9 @@ export function CuentasAdmin() {
                     )}
                   </p>
                   <p className="truncate text-[11px] text-muted">
-                    {acc.business_name} ·{" "}
-                    {acc.business_type === "salon" ? "Salón" : "Barbería"}
+                    {acc.role === "admin"
+                      ? "Administrador · ambas pieles (salón y barbería)"
+                      : `${acc.business_name} · ${acc.business_type === "salon" ? "Salón" : "Barbería"}`}
                   </p>
                 </div>
                 <StatusPill acc={acc} />
@@ -326,7 +327,7 @@ function CrearCuentaModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Crear cuenta de cliente">
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Field label="Usuario">
           <input
             value={username}
@@ -360,8 +361,8 @@ function CrearCuentaModal({
             className={inputCls}
           />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Piel">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Piel del cliente">
             <div className="flex rounded-xl border border-border p-0.5 text-sm">
               {(["salon", "barberia"] as BusinessType[]).map((t) => (
                 <button
@@ -394,6 +395,10 @@ function CrearCuentaModal({
             </select>
           </Field>
         </div>
+        <p className="-mt-1 text-[11px] text-muted">
+          La piel define qué verá este cliente (salón o barbería). Solo aplica a
+          cuentas de cliente.
+        </p>
         {dayChoice === -1 && (
           <Field label="Días personalizados">
             <input

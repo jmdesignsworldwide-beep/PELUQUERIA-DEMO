@@ -63,6 +63,10 @@ const config: Config = {
           "70%": { transform: "scale(2.4)", opacity: "0" },
           "100%": { transform: "scale(2.4)", opacity: "0" },
         },
+        // Poste de barbero: las franjas diagonales suben en bucle.
+        barberpole: {
+          to: { backgroundPosition: "0 -28px" },
+        },
       },
       animation: {
         "aurora-drift": "aurora-drift 22s ease-in-out infinite",
@@ -70,6 +74,7 @@ const config: Config = {
         shimmer: "shimmer 1.8s infinite",
         "shake-x": "shake-x 0.4s var(--ease-spring)",
         "now-pulse": "now-pulse 2.4s ease-out infinite",
+        barberpole: "barberpole 1.1s linear infinite",
       },
     },
   },

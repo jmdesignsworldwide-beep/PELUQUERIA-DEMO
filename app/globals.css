@@ -193,9 +193,16 @@ body {
   transition: background-color 0.5s var(--ease-spring), color 0.35s ease;
 }
 
+/*
+  Cifras legibles en TODO el sistema (dinero, montos, horas, cantidades, KPIs).
+  Los dígitos usan la sans limpia (Inter) con figuras LINING (rectas, no
+  caligráficas) y TABULAR (alineadas en columnas). Los títulos/etiquetas
+  conservan el serif elegante; solo los DÍGITOS priorizan legibilidad.
+*/
 .tabular {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum";
 }
 
 /*

@@ -4,18 +4,18 @@
  * BIENVENIDA CINEMATOGRÁFICA (sello JM Designs). Al entrar en el día aparece un
  * momento de bienvenida breve y premium antes del dashboard — bi-piel, con
  * temática de cabello/belleza:
- *  · Salón → hebras de cabello fluyendo + destellos dorados champagne.
- *  · Barbería → poste de barbero + líneas de fade + tijera.
- * Flujo: monograma JM → motivo temático → nombre del negocio → entrada.
+ *  · Salón → tijera de estilista (logo de piel).
+ *  · Barbería → navaja clásica (logo de piel).
+ * Flujo: monograma JM + logo de piel → nombre del negocio → entrada.
  * Breve (~2.6s), skippable (toca para entrar) y se muestra UNA vez por día.
  * Respeta prefers-reduced-motion: si está activo, no aparece (entrada directa).
  */
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Scissors } from "lucide-react";
 import { useApp } from "@/components/providers/AppProviders";
 import { AuroraBackground } from "@/components/ui/AuroraBackground";
+import { BrandMark } from "@/components/brand/BrandMark";
 
 function todayKey(): string {
   const d = new Date();
@@ -81,14 +81,14 @@ export function WelcomeOverlay() {
               </span>
             </motion.div>
 
-            {/* Motivo temático */}
+            {/* Logo de piel (complementa el monograma) */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.25, duration: 0.5 }}
-              className="mt-7 text-accent"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 220, damping: 16 }}
+              className="mt-6 grid h-14 w-14 place-items-center rounded-2xl border border-border glass text-accent shadow-soft"
             >
-              {businessType === "salon" ? <SalonMotif /> : <BarberiaMotif />}
+              <BrandMark businessType={businessType} size={30} />
             </motion.div>
 
             {/* Nombre del negocio */}
@@ -121,102 +121,5 @@ export function WelcomeOverlay() {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-/* ── Motivo SALÓN: hebras de cabello fluyendo + destellos champagne ── */
-function SalonMotif() {
-  return (
-    <div className="flex items-center gap-3">
-      <svg viewBox="0 0 160 64" className="h-16 w-auto" fill="none" aria-hidden>
-        {[0, 1, 2].map((i) => (
-          <motion.path
-            key={i}
-            d={`M8 ${22 + i * 9} C 48 ${6 + i * 9}, 92 ${42 + i * 7}, 152 ${18 + i * 9}`}
-            stroke="currentColor"
-            strokeOpacity={0.6 - i * 0.13}
-            strokeWidth={1.6}
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ delay: 0.3 + i * 0.16, duration: 0.95, ease: "easeInOut" }}
-          />
-        ))}
-        {([
-          [44, 12],
-          [118, 48],
-          [86, 9],
-        ] as const).map(([x, y], i) => (
-          <motion.path
-            key={`s${i}`}
-            d={`M${x} ${y - 3.5} L${x} ${y + 3.5} M${x - 3.5} ${y} L${x + 3.5} ${y}`}
-            stroke="rgb(var(--metallic))"
-            strokeWidth={1.4}
-            strokeLinecap="round"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1 + i * 0.16, type: "spring", stiffness: 300, damping: 13 }}
-            style={{ transformOrigin: `${x}px ${y}px` }}
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-/* ── Motivo BARBERÍA: poste de barbero + líneas de fade + tijera ── */
-function BarberiaMotif() {
-  return (
-    <div className="flex items-center gap-4">
-      {/* líneas de fade */}
-      <svg viewBox="0 0 64 64" className="h-16 w-16" fill="none" aria-hidden>
-        {[0, 1, 2, 3].map((i) => (
-          <motion.line
-            key={i}
-            x1={6}
-            y1={14 + i * 12}
-            x2={58}
-            y2={14 + i * 12}
-            stroke="currentColor"
-            strokeOpacity={0.2 + i * 0.13}
-            strokeWidth={1.3}
-            strokeDasharray="2 6"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ delay: 0.3 + i * 0.13, duration: 0.8, ease: "easeInOut" }}
-          />
-        ))}
-      </svg>
-
-      {/* poste de barbero */}
-      <motion.div
-        initial={{ scaleY: 0.6, opacity: 0 }}
-        animate={{ scaleY: 1, opacity: 1 }}
-        transition={{ delay: 0.4, type: "spring", stiffness: 240, damping: 18 }}
-        className="relative h-16 w-5 overflow-hidden rounded-full border border-border shadow-soft"
-        style={{ background: "rgb(var(--surface))" }}
-      >
-        <div
-          aria-hidden
-          className="absolute inset-0 animate-barberpole"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, rgb(var(--accent)) 0 7px, transparent 7px 14px, rgb(var(--metallic)) 14px 21px, transparent 21px 28px)",
-            backgroundSize: "100% 28px",
-            opacity: 0.85,
-          }}
-        />
-      </motion.div>
-
-      {/* tijera */}
-      <motion.div
-        initial={{ opacity: 0, rotate: -12 }}
-        animate={{ opacity: 1, rotate: 0 }}
-        transition={{ delay: 0.7, type: "spring", stiffness: 260, damping: 16 }}
-      >
-        <Scissors size={28} className="text-accent" />
-      </motion.div>
-    </div>
   );
 }

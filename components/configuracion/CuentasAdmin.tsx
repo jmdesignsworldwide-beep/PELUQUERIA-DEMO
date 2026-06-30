@@ -17,6 +17,7 @@ import {
   Infinity as InfinityIcon,
   Power,
   CalendarPlus,
+  X,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -89,9 +90,6 @@ export function CuentasAdmin() {
   const [error, setError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<AccountRow | null>(null);
-  const [created, setCreated] = useState<{ username: string; password: string } | null>(
-    null
-  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -136,13 +134,26 @@ export function CuentasAdmin() {
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
           </button>
-          <Button size="sm" onClick={() => setCreateOpen(true)} className="shrink-0">
-            <UserPlus size={15} /> Crear cuenta
+          <Button
+            size="sm"
+            variant={createOpen ? "secondary" : "primary"}
+            onClick={() => setCreateOpen((v) => !v)}
+            className="shrink-0"
+          >
+            <UserPlus size={15} /> {createOpen ? "Cerrar" : "Crear cuenta"}
           </Button>
         </div>
       </div>
 
-      <div className="px-5 pb-6 sm:px-6">
+      <div className="space-y-4 px-5 pb-6 sm:px-6">
+        {/* Crear cuenta — sección inline (sin modal, no se corta) */}
+        {createOpen && (
+          <CrearCuentaInline
+            onCancel={() => setCreateOpen(false)}
+            onCreated={load}
+          />
+        )}
+
         {error ? (
           <div
             className="rounded-xl px-3 py-2 text-sm"
@@ -200,34 +211,6 @@ export function CuentasAdmin() {
         )}
       </div>
 
-      {/* Crear cuenta */}
-      <CrearCuentaModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreated={(creds) => {
-          setCreateOpen(false);
-          setCreated(creds);
-          load();
-        }}
-      />
-
-      {/* Credenciales recién creadas */}
-      <Modal open={!!created} onClose={() => setCreated(null)} title="Cuenta creada">
-        {created && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted">
-              Comparte estas credenciales con tu cliente. La contraseña no se vuelve
-              a mostrar.
-            </p>
-            <CredRow label="Usuario" value={created.username} />
-            <CredRow label="Contraseña" value={created.password} />
-            <Button fullWidth onClick={() => setCreated(null)}>
-              Listo
-            </Button>
-          </div>
-        )}
-      </Modal>
-
       {/* Detalle / acciones de una cuenta */}
       <DetalleCuentaModal
         account={selected}
@@ -274,35 +257,35 @@ const DAY_OPTIONS = [
   { label: "Sin vencimiento", value: 0 },
 ];
 
-function CrearCuentaModal({
-  open,
-  onClose,
+function CrearCuentaInline({
+  onCancel,
   onCreated,
 }: {
-  open: boolean;
-  onClose: () => void;
-  onCreated: (creds: { username: string; password: string }) => void;
+  onCancel: () => void;
+  onCreated: () => void;
 }) {
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(() => genPassword());
   const [businessType, setBusinessType] = useState<BusinessType>("salon");
   const [businessName, setBusinessName] = useState("");
   const [dayChoice, setDayChoice] = useState(7);
   const [customDays, setCustomDays] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [done, setDone] = useState<{ username: string; password: string } | null>(
+    null
+  );
 
-  useEffect(() => {
-    if (open) {
-      setUsername("");
-      setPassword(genPassword());
-      setBusinessType("salon");
-      setBusinessName("");
-      setDayChoice(7);
-      setCustomDays("");
-      setErr(null);
-    }
-  }, [open]);
+  function resetForm() {
+    setUsername("");
+    setPassword(genPassword());
+    setBusinessType("salon");
+    setBusinessName("");
+    setDayChoice(7);
+    setCustomDays("");
+    setErr(null);
+    setDone(null);
+  }
 
   function resolvedDays(): number | null {
     if (dayChoice === 0) return null; // sin vencimiento
@@ -321,128 +304,182 @@ function CrearCuentaModal({
       days: resolvedDays(),
     });
     setBusy(false);
-    if (res.ok) onCreated({ username: username.trim().toLowerCase(), password });
-    else setErr(res.error);
+    if (res.ok) {
+      setDone({ username: username.trim().toLowerCase(), password });
+      onCreated(); // refresca la lista
+    } else {
+      setErr(res.error);
+    }
   }
 
-  return (
-    <Modal open={open} onClose={onClose} title="Crear cuenta de cliente" size="lg">
-      <div className="space-y-5">
-        {/* Datos de acceso */}
-        <section className="space-y-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
-            Datos de acceso
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Usuario">
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="ej. salon-maria"
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Nombre del negocio">
-              <input
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="ej. Salón María"
-                className={inputCls}
-              />
-            </Field>
-          </div>
-          <Field label="Contraseña">
-            <div className="flex gap-2">
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={cn(inputCls, "tabular")}
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setPassword(genPassword())}
-                className="shrink-0"
-              >
-                <RefreshCw size={14} /> Generar
-              </Button>
-            </div>
-          </Field>
-        </section>
-
-        {/* Piel y acceso temporal */}
-        <section className="space-y-4 border-t border-border pt-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
-            Piel y acceso
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Piel del cliente">
-              <div className="flex rounded-xl border border-border p-0.5 text-sm">
-                {(["salon", "barberia"] as BusinessType[]).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setBusinessType(t)}
-                    className={cn(
-                      "flex-1 rounded-lg px-2 py-1.5 font-medium transition-colors",
-                      businessType === t
-                        ? "bg-accent text-accent-contrast"
-                        : "text-muted hover:text-fg"
-                    )}
-                  >
-                    {t === "salon" ? "Salón" : "Barbería"}
-                  </button>
-                ))}
-              </div>
-            </Field>
-            <Field label="Acceso">
-              <select
-                value={dayChoice}
-                onChange={(e) => setDayChoice(Number(e.target.value))}
-                className={inputCls}
-              >
-                {DAY_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          {dayChoice === -1 && (
-            <Field label="Días personalizados">
-              <input
-                inputMode="numeric"
-                value={customDays}
-                onChange={(e) => setCustomDays(e.target.value)}
-                placeholder="ej. 45"
-                className={cn(inputCls, "tabular")}
-              />
-            </Field>
-          )}
-          <p className="text-[11px] text-muted">
-            La piel define qué verá este cliente (salón o barbería). Solo aplica a
-            cuentas de cliente.
-          </p>
-        </section>
-
-        {err && (
-          <p
-            className="rounded-lg px-3 py-2 text-sm"
+  // Pantalla de éxito (credenciales) — también inline.
+  if (done) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-[color:rgb(var(--st-completada)/0.5)] bg-surface-2/30 p-4 sm:p-5">
+        <div className="flex items-center gap-2">
+          <span
+            className="grid h-7 w-7 place-items-center rounded-full"
             style={{
-              color: "rgb(var(--st-cancelada))",
-              background: "rgb(var(--st-cancelada) / 0.1)",
+              color: "rgb(var(--st-completada))",
+              background: "rgb(var(--st-completada) / 0.14)",
             }}
           >
-            {err}
-          </p>
-        )}
+            <Check size={16} strokeWidth={3} />
+          </span>
+          <p className="font-medium">Cuenta creada</p>
+        </div>
+        <p className="text-sm text-muted">
+          Comparte estas credenciales con tu cliente. La contraseña no se vuelve a
+          mostrar.
+        </p>
+        <CredRow label="Usuario" value={done.username} />
+        <CredRow label="Contraseña" value={done.password} />
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button fullWidth variant="secondary" onClick={resetForm}>
+            <UserPlus size={15} /> Crear otra
+          </Button>
+          <Button fullWidth onClick={onCancel}>
+            Listo
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
-        <Button fullWidth loading={busy} onClick={submit}>
-          Crear cuenta
+  const valid =
+    username.trim().length >= 3 &&
+    password.length >= 6 &&
+    businessName.trim().length > 0 &&
+    (dayChoice !== -1 || parseInt(customDays || "0", 10) > 0);
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-border bg-surface-2/30 p-4 sm:p-5">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+          Nueva cuenta de cliente
+        </p>
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label="Cerrar"
+          className="grid h-8 w-8 place-items-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      <Field label="Usuario">
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="ej. salon-maria"
+          autoCapitalize="none"
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="Contraseña">
+        <div className="flex gap-2">
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={cn(inputCls, "tabular")}
+          />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setPassword(genPassword())}
+            className="shrink-0"
+          >
+            <RefreshCw size={14} /> Generar
+          </Button>
+        </div>
+      </Field>
+
+      <Field label="Nombre del negocio">
+        <input
+          value={businessName}
+          onChange={(e) => setBusinessName(e.target.value)}
+          placeholder="ej. Salón María"
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="Piel del cliente">
+        <div className="flex rounded-xl border border-border p-0.5 text-sm">
+          {(["salon", "barberia"] as BusinessType[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setBusinessType(t)}
+              className={cn(
+                "flex-1 rounded-lg px-2 py-2 font-medium transition-colors",
+                businessType === t
+                  ? "bg-accent text-accent-contrast"
+                  : "text-muted hover:text-fg"
+              )}
+            >
+              {t === "salon" ? "Salón" : "Barbería"}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Días de acceso">
+        <select
+          value={dayChoice}
+          onChange={(e) => setDayChoice(Number(e.target.value))}
+          className={inputCls}
+        >
+          {DAY_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      {dayChoice === -1 && (
+        <Field label="Días personalizados">
+          <input
+            inputMode="numeric"
+            value={customDays}
+            onChange={(e) => setCustomDays(e.target.value)}
+            placeholder="ej. 45"
+            className={cn(inputCls, "tabular")}
+          />
+        </Field>
+      )}
+
+      {err && (
+        <p
+          className="rounded-lg px-3 py-2 text-sm"
+          style={{
+            color: "rgb(var(--st-cancelada))",
+            background: "rgb(var(--st-cancelada) / 0.1)",
+          }}
+        >
+          {err}
+        </p>
+      )}
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          fullWidth
+          loading={busy}
+          disabled={!valid}
+          onClick={submit}
+        >
+          <UserPlus size={15} /> Crear cuenta
+        </Button>
+        <Button fullWidth variant="secondary" onClick={onCancel}>
+          Cancelar
         </Button>
       </div>
-    </Modal>
+      <p className="text-[11px] text-muted">
+        La piel define qué verá este cliente (salón o barbería).
+      </p>
+    </div>
   );
 }
 

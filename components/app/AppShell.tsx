@@ -221,6 +221,8 @@ export function AppShell({
             // cómoda centrada.
             isCitas
               ? "flex min-h-0 flex-col p-3 sm:p-4"
+              : pathname === "/app"
+              ? "mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10"
               : pathname.startsWith("/app/pagos") ||
                 pathname.startsWith("/app/caja")
               ? "mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"

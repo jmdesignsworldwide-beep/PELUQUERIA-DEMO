@@ -223,13 +223,13 @@ export async function setAccountActive(
   return { ok: true };
 }
 
-/** Cambiar la contraseña de la PROPIA cuenta (cualquier rol). */
+/** Cambiar la contraseña de la propia cuenta. SOLO admin: el cliente no cambia
+ *  su clave (la controla el admin). Validado en el servidor, no solo en la UI. */
 export async function changeOwnPassword(
   newPassword: string
 ): Promise<ActionResult> {
-  // Solo una cuenta vigente (activa y no vencida) puede cambiar su contraseña.
-  const active = await requireActiveUser();
-  if (!active) return { ok: false, error: "No autorizado." };
+  const admin = await requireAdmin();
+  if (!admin) return { ok: false, error: "No autorizado." };
   const supabase = createClient();
   if (!newPassword || newPassword.length < 6) {
     return { ok: false, error: "La contraseña debe tener al menos 6 caracteres." };

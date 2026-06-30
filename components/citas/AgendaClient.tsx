@@ -180,7 +180,7 @@ function Block({
     ? "0 0 0 1.5px rgb(var(--accent)), 0 10px 26px -8px rgb(var(--accent) / 0.5)"
     : dragging
     ? "0 0 0 1.5px rgb(var(--accent)), 0 18px 36px -10px rgb(var(--shadow-rgb) / 0.5)"
-    : "0 0 16px 2px rgb(var(--accent) / 0.35), 0 1px 2px rgb(var(--shadow-rgb) / 0.10)";
+    : "0 0 8px 0 rgb(var(--accent) / 0.20), 0 1px 2px rgb(var(--shadow-rgb) / 0.10)";
 
   return (
     <motion.div

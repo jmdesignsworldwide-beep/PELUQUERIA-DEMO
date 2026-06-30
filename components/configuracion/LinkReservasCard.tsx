@@ -12,6 +12,16 @@ import { Copy, Check, Download, MessageCircle, QrCode, Link as LinkIcon } from "
 import { useApp } from "@/components/providers/AppProviders";
 import { Button } from "@/components/ui/Button";
 
+/**
+ * Dominio de PRODUCCIÓN estable para el link público de reservas. Nunca usamos
+ * la URL del deploy actual (en preview es temporal, con código aleatorio, y
+ * puede pedir login / caducar). Configurable con NEXT_PUBLIC_SITE_URL (p. ej.
+ * un dominio propio a futuro); por defecto, el dominio fijo de producción.
+ */
+const PROD_BASE = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://peluqueria-demo-seven.vercel.app"
+).replace(/\/+$/, "");
+
 /** "JM Beauty Salón" → "jm-beauty-salon". */
 function slugify(s: string): string {
   return s
@@ -28,22 +38,19 @@ export function LinkReservasCard() {
   const name = businessName || skin.businessName;
   const slug = slugify(name) || "mi-negocio";
 
-  const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Origin real solo en el cliente (evita desajuste de hidratación).
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  const link = origin ? `${origin}/reservar/${slug}` : `…/reservar/${slug}`;
+  // SIEMPRE el dominio de producción estable (no la URL temporal del preview).
+  // Configurable con NEXT_PUBLIC_SITE_URL (p. ej. un dominio propio a futuro);
+  // por defecto, el dominio fijo de producción.
+  const link = `${PROD_BASE}/reservar/${slug}`;
 
   // Generar el QR cuando hay link. Módulos oscuros sobre blanco = siempre
   // nítido y escaneable, listo para imprimir (la librería exige color hex).
   useEffect(() => {
-    if (!origin || !canvasRef.current) return;
+    if (!canvasRef.current) return;
     const opts = {
       margin: 1,
       color: { dark: "#141418", light: "#ffffff" },

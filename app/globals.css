@@ -204,7 +204,8 @@ body {
   para que un encabezado nunca quede con una sola palabra colgando.
 */
 .font-display {
-  letter-spacing: -0.02em;
+  /* Serif editorial: tracking casi neutro (un serif apretado se ve mal). */
+  letter-spacing: -0.005em;
 }
 .text-balance {
   text-wrap: balance;

@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { themeBootScript } from "@/lib/theme";
 import { DEFAULT_SKIN } from "@/lib/skins";
 import "./globals.css";
 
-const display = Fraunces({
+// Serif editorial/boutique para títulos display — elegante y sobrio (alta gama).
+const display = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-display",

@@ -9,6 +9,7 @@ import { useApp } from "@/components/providers/AppProviders";
 import { AuroraBackground } from "@/components/ui/AuroraBackground";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/Button";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { cn } from "@/lib/cn";
 import { NAV_ITEMS } from "./nav";
 import { signOut } from "@/app/app/actions";
@@ -26,7 +27,10 @@ function Brand() {
         <p className="font-display text-base font-semibold tracking-tight">
           {skin.businessName}
         </p>
-        <p className="text-xs text-muted">{skin.label}</p>
+        <p className="flex items-center gap-1.5 text-xs text-muted">
+          <BrandMark businessType={skin.type} size={13} className="text-accent" />
+          {skin.label}
+        </p>
       </div>
     </div>
   );

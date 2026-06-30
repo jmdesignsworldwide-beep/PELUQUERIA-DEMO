@@ -183,6 +183,17 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/*
+  Placeholders legibles y consistentes en TODO el sistema: gris cálido (--muted,
+  ya AA) a 0.85 para que se lean cómodos pero sigan distinguiéndose del texto
+  escrito (text-fg). opacity:1 anula la atenuación por defecto de Firefox.
+*/
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--muted) / 0.85);
+  opacity: 1;
+}
+
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));

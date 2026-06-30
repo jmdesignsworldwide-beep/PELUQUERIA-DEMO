@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -9,6 +10,11 @@ import { cn } from "@/lib/cn";
  * Panel de detalle premium. AnimatePresence para entrada/salida,
  * altura máxima + scroll interno (clave para móvil), cierre con Escape,
  * bloqueo de scroll del fondo y backdrop con blur.
+ *
+ * Se renderiza con un PORTAL a <body>, fuera de la jerarquía de la lista. Así
+ * ningún contenedor padre (overflow-hidden, altura fija, o un `transform` de
+ * framer-motion que crea bloque contenedor para position:fixed) puede cortarlo:
+ * el modal siempre queda centrado en el viewport, completo.
  */
 const SIZE_CLASS = {
   md: "sm:max-w-lg",
@@ -33,6 +39,10 @@ export function Modal({
   /** Ancho del panel en escritorio. "lg" para formularios amplios. */
   size?: "md" | "lg";
 }) {
+  // El portal solo existe en el cliente (document disponible tras montar).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -47,7 +57,9 @@ export function Modal({
     };
   }, [open, onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
@@ -106,6 +118,7 @@ export function Modal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

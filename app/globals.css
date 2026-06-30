@@ -32,14 +32,14 @@
   --surface-2: 248 240 235;
   --border: 232 216 214;
   --fg: 43 31 35;
-  --muted: 124 106 112;
-  --accent: 183 105 120;          /* dusty rose */
+  --muted: 106 90 96;             /* gris cálido legible (AA) */
+  --accent: 150 72 88;            /* rosa profundo legible como texto (AA) */
   --accent-soft: 232 205 211;
   --accent-contrast: 255 252 250; /* texto sobre acento */
   --metallic: 176 141 87;         /* champagne */
   --aurora-1: 224 168 184;        /* rosa empolvado */
   --aurora-2: 226 196 150;        /* champagne */
-  --aurora-strength: 0.45;
+  --aurora-strength: 0.58;
   --shadow-rgb: 78 44 54;         /* sombra tintada cálida (no negro) */
 }
 
@@ -56,7 +56,7 @@
   --metallic: 214 178 126;        /* champagne */
   --aurora-1: 196 120 144;
   --aurora-2: 190 150 102;
-  --aurora-strength: 0.55;
+  --aurora-strength: 0.7;
   --shadow-rgb: 0 0 0;
 }
 
@@ -68,14 +68,14 @@
   --surface-2: 235 231 224;
   --border: 219 213 204;
   --fg: 28 28 30;
-  --muted: 102 99 94;
-  --accent: 160 92 54;            /* cobre envejecido */
+  --muted: 94 90 84;              /* gris tierra legible (AA) */
+  --accent: 138 76 40;            /* cobre profundo legible como texto (AA) */
   --accent-soft: 226 210 196;
   --accent-contrast: 252 249 245;
   --metallic: 150 120 75;         /* dorado envejecido */
   --aurora-1: 178 120 78;         /* cobre */
   --aurora-2: 150 124 82;         /* dorado viejo */
-  --aurora-strength: 0.32;
+  --aurora-strength: 0.46;
   --shadow-rgb: 56 38 24;         /* sombra tintada tierra */
 }
 
@@ -92,7 +92,7 @@
   --metallic: 192 160 106;        /* dorado envejecido */
   --aurora-1: 184 112 66;
   --aurora-2: 150 120 78;
-  --aurora-strength: 0.5;
+  --aurora-strength: 0.64;
   --shadow-rgb: 0 0 0;
 }
 
@@ -106,7 +106,7 @@
 [data-skin="salon"][data-theme="light"] {
   --st-pendiente: 184 130 48;     /* ámbar suave */
   --st-confirmada: 86 118 178;    /* azul empolvado */
-  --st-proceso: 183 105 120;      /* = acento rosa */
+  --st-proceso: 150 72 88;        /* = acento rosa */
   --st-completada: 86 148 108;    /* verde salvia */
   --st-noshow: 138 128 132;       /* gris cálido */
   --st-cancelada: 188 94 102;     /* rojo suave */
@@ -123,7 +123,7 @@
 [data-skin="barberia"][data-theme="light"] {
   --st-pendiente: 176 126 50;     /* ámbar tostado */
   --st-confirmada: 92 116 156;    /* azul pizarra terroso */
-  --st-proceso: 160 92 54;        /* = acento cobre */
+  --st-proceso: 138 76 40;        /* = acento cobre */
   --st-completada: 108 140 92;    /* verde oliva */
   --st-noshow: 128 122 112;       /* gris cálido tierra */
   --st-cancelada: 176 94 74;      /* terracota */
@@ -145,14 +145,14 @@
   --surface-2: 238 235 230;
   --border: 224 219 211;
   --fg: 30 29 31;
-  --muted: 110 107 102;
-  --accent: 156 124 64;           /* dorado champagne sobrio */
+  --muted: 96 93 88;              /* gris legible (AA) */
+  --accent: 130 100 44;           /* dorado profundo legible como texto (AA) */
   --accent-soft: 230 222 208;
   --accent-contrast: 253 251 247;
   --metallic: 156 124 64;
   --aurora-1: 206 180 130;
   --aurora-2: 175 178 188;
-  --aurora-strength: 0.3;
+  --aurora-strength: 0.42;
   --shadow-rgb: 40 34 24;
 }
 
@@ -169,7 +169,7 @@
   --metallic: 212 180 128;
   --aurora-1: 200 170 120;
   --aurora-2: 120 122 138;
-  --aurora-strength: 0.42;
+  --aurora-strength: 0.55;
   --shadow-rgb: 0 0 0;
 }
 
@@ -229,7 +229,38 @@ body {
   transition-duration: var(--dur);
 }
 
-/* Glass más presente para barras/headers que necesitan separarse del fondo */
+/*
+  Glow CÁLIDO de lujo (no neón tech): champagne/dorado + acento de la piel.
+  Para elementos clave (monograma, próxima cita, KPI destacado, CTA). Da el
+  "se ve caro" de JM Tech pero traducido al alma boutique/artesanal.
+*/
+.glow-warm {
+  box-shadow:
+    0 0 0 1px rgb(var(--metallic) / 0.28),
+    0 8px 30px -10px rgb(var(--accent) / 0.42),
+    0 2px 16px -6px rgb(var(--metallic) / 0.4);
+}
+
+/*
+  Glow de BORDE: halo de color del acento de la piel rodeando el CONTORNO del
+  elemento (rosa salón / cobre barbería). Ilumina el borde, no mancha el fondo.
+  Para tarjetas, bloques de cita, paneles y elementos clave.
+*/
+.glow-edge-soft {
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--accent) / 0.40),
+    0 0 8px 0 rgb(var(--accent) / 0.16);
+}
+/* Más brillante para elementos CLAVE (destacados). Definido después → gana. */
+.glow-edge {
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--accent) / 0.7),
+    0 0 12px 0 rgb(var(--accent) / 0.30);
+}
+
+/* Glass más presente para barras/headers que necesitan separarse del fondo.
+   Lleva un velo del acento de la piel para que el vidrio se sienta "iluminado"
+   con calidez (rosa salón / cobre barbería), no frío y plano. */
 .glass-strong {
   background: linear-gradient(
     180deg,
@@ -240,7 +271,7 @@ body {
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }
 
-/* glass premium reutilizable */
+/* glass premium reutilizable (superficie limpia; el color vive en el borde). */
 .glass {
   background: linear-gradient(
     180deg,

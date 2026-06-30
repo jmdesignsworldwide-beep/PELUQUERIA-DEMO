@@ -31,11 +31,14 @@ const config: Config = {
       },
       boxShadow: {
         glow: "0 0 0 1px rgb(var(--accent) / 0.25), 0 8px 30px -8px rgb(var(--accent) / 0.35)",
-        // Sombras tintadas por piel (--shadow-rgb), suaves y difusas (feel 21st.dev).
-        soft: "0 1px 2px rgb(var(--shadow-rgb) / 0.04), 0 4px 14px -6px rgb(var(--shadow-rgb) / 0.10)",
+        // BORDE LUMINOSO estilo JM Tech: ring nítido de 1px del acento de la piel
+        // (rosa salón / cobre barbería) + glow MUY ceñido. Limpio, no nube difusa;
+        // funciona en claro y oscuro. Lo usan todas las tarjetas (soft = reposo,
+        // pop = hover/destacado, layered = modales/paneles flotantes).
+        soft: "inset 0 0 0 1px rgb(var(--accent) / 0.40), 0 0 8px 0 rgb(var(--accent) / 0.16), 0 2px 6px -4px rgb(var(--shadow-rgb) / 0.12)",
         layered:
-          "0 1px 2px rgb(var(--shadow-rgb) / 0.05), 0 6px 18px -10px rgb(var(--shadow-rgb) / 0.12), 0 20px 44px -24px rgb(var(--shadow-rgb) / 0.18)",
-        pop: "0 2px 6px rgb(var(--shadow-rgb) / 0.07), 0 14px 34px -14px rgb(var(--shadow-rgb) / 0.22)",
+          "inset 0 0 0 1px rgb(var(--accent) / 0.42), 0 0 10px 0 rgb(var(--accent) / 0.16), 0 16px 40px -24px rgb(var(--shadow-rgb) / 0.20)",
+        pop: "inset 0 0 0 1px rgb(var(--accent) / 0.65), 0 0 12px 0 rgb(var(--accent) / 0.28), 0 10px 26px -14px rgb(var(--shadow-rgb) / 0.20)",
       },
       borderRadius: {
         xl: "1rem",

@@ -83,7 +83,6 @@ export function AuroraBackground({
         strengthMul={0.7}
         blur="110px"
       />
-
       {/* grano/vignette sutil para premium */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgb(0_0_0/0.28))]" />
     </div>

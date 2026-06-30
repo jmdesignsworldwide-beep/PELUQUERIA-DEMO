@@ -57,7 +57,7 @@ import {
 } from "./data";
 
 const HEADER_H = 60; // alto del encabezado de columnas
-const GUTTER_W = 56; // ancho de la columna de horas
+const GUTTER_W = 66; // ancho de la columna de horas
 
 type Override = Partial<Pick<Appointment, "professionalId" | "start" | "status">>;
 
@@ -180,7 +180,7 @@ function Block({
     ? "0 0 0 1.5px rgb(var(--accent)), 0 10px 26px -8px rgb(var(--accent) / 0.5)"
     : dragging
     ? "0 0 0 1.5px rgb(var(--accent)), 0 18px 36px -10px rgb(var(--shadow-rgb) / 0.5)"
-    : "0 1px 2px rgb(var(--shadow-rgb) / 0.08)";
+    : "0 0 8px 0 rgb(var(--accent) / 0.20), 0 1px 2px rgb(var(--shadow-rgb) / 0.10)";
 
   return (
     <motion.div
@@ -845,7 +845,7 @@ export function AgendaClient() {
                     {hours.map((h) => (
                       <div
                         key={h}
-                        className="absolute right-2 -translate-y-1/2 text-[11px] font-medium tabular text-fg/70"
+                        className="absolute right-2 -translate-y-1/2 text-[13px] font-semibold tabular text-fg/80"
                         style={{ top: (h - START_HOUR) * hourHeight }}
                       >
                         {h === START_HOUR ? "" : hourLabel(h)}

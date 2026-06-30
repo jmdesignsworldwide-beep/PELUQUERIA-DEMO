@@ -39,7 +39,7 @@
   --metallic: 176 141 87;         /* champagne */
   --aurora-1: 224 168 184;        /* rosa empolvado */
   --aurora-2: 226 196 150;        /* champagne */
-  --aurora-strength: 0.45;
+  --aurora-strength: 0.58;
   --shadow-rgb: 78 44 54;         /* sombra tintada cálida (no negro) */
 }
 
@@ -56,7 +56,7 @@
   --metallic: 214 178 126;        /* champagne */
   --aurora-1: 196 120 144;
   --aurora-2: 190 150 102;
-  --aurora-strength: 0.55;
+  --aurora-strength: 0.7;
   --shadow-rgb: 0 0 0;
 }
 
@@ -75,7 +75,7 @@
   --metallic: 150 120 75;         /* dorado envejecido */
   --aurora-1: 178 120 78;         /* cobre */
   --aurora-2: 150 124 82;         /* dorado viejo */
-  --aurora-strength: 0.32;
+  --aurora-strength: 0.46;
   --shadow-rgb: 56 38 24;         /* sombra tintada tierra */
 }
 
@@ -92,7 +92,7 @@
   --metallic: 192 160 106;        /* dorado envejecido */
   --aurora-1: 184 112 66;
   --aurora-2: 150 120 78;
-  --aurora-strength: 0.5;
+  --aurora-strength: 0.64;
   --shadow-rgb: 0 0 0;
 }
 
@@ -152,7 +152,7 @@
   --metallic: 156 124 64;
   --aurora-1: 206 180 130;
   --aurora-2: 175 178 188;
-  --aurora-strength: 0.3;
+  --aurora-strength: 0.42;
   --shadow-rgb: 40 34 24;
 }
 
@@ -169,7 +169,7 @@
   --metallic: 212 180 128;
   --aurora-1: 200 170 120;
   --aurora-2: 120 122 138;
-  --aurora-strength: 0.42;
+  --aurora-strength: 0.55;
   --shadow-rgb: 0 0 0;
 }
 
@@ -227,6 +227,18 @@ body {
     transform, opacity;
   transition-timing-function: var(--ease-out);
   transition-duration: var(--dur);
+}
+
+/*
+  Glow CÁLIDO de lujo (no neón tech): champagne/dorado + acento de la piel.
+  Para elementos clave (monograma, próxima cita, KPI destacado, CTA). Da el
+  "se ve caro" de JM Tech pero traducido al alma boutique/artesanal.
+*/
+.glow-warm {
+  box-shadow:
+    0 0 0 1px rgb(var(--metallic) / 0.28),
+    0 8px 30px -10px rgb(var(--accent) / 0.42),
+    0 2px 16px -6px rgb(var(--metallic) / 0.4);
 }
 
 /* Glass más presente para barras/headers que necesitan separarse del fondo */

@@ -543,7 +543,7 @@ function ProximaCita({
     : `En ${Math.floor(falta / 60)} h ${falta % 60} min`;
 
   return (
-    <Panel href="/app/citas" className="flex h-full flex-col">
+    <Panel href="/app/citas" className="glow-warm flex h-full flex-col">
       <SectionTitle icon={CalendarClock} href="/app/citas">
         Próxima cita
       </SectionTitle>

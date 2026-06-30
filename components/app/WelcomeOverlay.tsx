@@ -66,7 +66,7 @@ export function WelcomeOverlay() {
               initial={{ scale: 0.82, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 220, damping: 18 }}
-              className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-3xl bg-accent text-accent-contrast shadow-glow"
+              className="glow-warm relative grid h-20 w-20 place-items-center overflow-hidden rounded-3xl bg-accent text-accent-contrast"
             >
               <span
                 aria-hidden

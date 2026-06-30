@@ -84,7 +84,10 @@ export function DashboardKpis() {
           <Link
             key={c.label}
             href={c.href}
-            className="group relative overflow-hidden rounded-2xl border border-border glass p-5 shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-6"
+            className={
+              "group relative overflow-hidden rounded-2xl border border-border glass p-5 shadow-soft transition-premium hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-pop sm:p-6" +
+              (c.highlight ? " glow-warm border-accent/30" : "")
+            }
           >
             <div
               aria-hidden

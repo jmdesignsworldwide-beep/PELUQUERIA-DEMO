@@ -1,16 +1,7 @@
-import { getAgendaData } from "@/lib/agenda";
-import { AgendaView } from "@/components/agenda/AgendaView";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { AgendaClient } from "@/components/citas/AgendaClient";
 
-export default async function CitasPage({
-  searchParams,
-}: {
-  searchParams: { date?: string };
-}) {
-  const data = await getAgendaData(searchParams.date);
-  if (!data) {
-    return <p className="text-muted">No se pudo cargar la agenda.</p>;
-  }
-  return <AgendaView data={data} />;
+export default function CitasPage() {
+  return <AgendaClient />;
 }

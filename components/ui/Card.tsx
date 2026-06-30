@@ -19,13 +19,11 @@ export function Card({
   className,
   interactive = true,
   as = "div",
-  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
   interactive?: boolean;
   as?: "div" | "section" | "article";
-  onClick?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
@@ -60,7 +58,6 @@ export function Card({
   return (
     <MotionTag
       ref={ref}
-      onClick={onClick}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       style={
@@ -71,8 +68,8 @@ export function Card({
       whileHover={interactive ? { y: -3 } : undefined}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border glass shadow-card transition-shadow duration-300",
-        interactive && "hover:shadow-pop",
+        "group relative overflow-hidden rounded-2xl border border-border glass shadow-soft transition-[box-shadow,border-color] duration-300",
+        interactive && "hover:border-accent/30 hover:shadow-pop",
         className
       )}
     >

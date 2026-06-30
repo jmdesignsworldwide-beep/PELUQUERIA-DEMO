@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { MoneyProvider } from "@/components/providers/MoneyProvider";
 import { isBusinessType } from "@/lib/skins";
 import { AppShell } from "@/components/app/AppShell";
+import { WelcomeOverlay } from "@/components/app/WelcomeOverlay";
 
 /**
  * Layout del área autenticada. Lee el perfil de la cuenta EN EL SERVIDOR y
@@ -22,25 +24,51 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, business_type")
+    .select(
+      "username, business_type, role, business_name, is_active, access_expires_at"
+    )
     .eq("id", user.id)
     .single();
 
   if (!profile) redirect("/login");
 
+  // Acceso temporal REAL: si la cuenta está inactiva o vencida, cerrar sesión.
+  // (También se valida en el login; esto cubre la expiración a mitad de sesión.)
+  if (!profile.is_active) {
+    await supabase.auth.signOut();
+    redirect("/login?estado=inactivo");
+  }
+  if (
+    profile.access_expires_at &&
+    new Date(profile.access_expires_at).getTime() < Date.now()
+  ) {
+    await supabase.auth.signOut();
+    redirect("/login?estado=vencido");
+  }
+
   const skin = isBusinessType(profile.business_type)
     ? profile.business_type
     : "salon";
+  const role = profile.role === "admin" ? "admin" : "cliente";
 
   return (
-    <AppProviders initialSkin={skin}>
+    <AppProviders
+      initialSkin={skin}
+      role={role}
+      username={profile.username}
+      businessName={profile.business_name}
+      accessExpiresAt={profile.access_expires_at}
+    >
       {/* Aplica la piel de la cuenta antes del primer paint (sin parpadeo). */}
       <script
         dangerouslySetInnerHTML={{
           __html: `document.documentElement.setAttribute('data-skin','${skin}');`,
         }}
       />
-      <AppShell username={profile.username}>{children}</AppShell>
+      <MoneyProvider>
+        <WelcomeOverlay />
+        <AppShell username={profile.username}>{children}</AppShell>
+      </MoneyProvider>
     </AppProviders>
   );
 }

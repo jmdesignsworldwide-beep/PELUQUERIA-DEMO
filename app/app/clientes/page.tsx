@@ -1,9 +1,7 @@
-import { getClients } from "@/lib/clients";
-import { ClientsList } from "@/components/clients/ClientsList";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { ClientesClient } from "@/components/clientes/ClientesClient";
 
-export default async function ClientesPage() {
-  const clients = await getClients();
-  return <ClientsList clients={clients} />;
+export default function ClientesPage() {
+  return <ClientesClient />;
 }

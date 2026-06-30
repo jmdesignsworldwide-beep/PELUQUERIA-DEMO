@@ -83,6 +83,15 @@ export function AuroraBackground({
         strengthMul={0.7}
         blur="110px"
       />
+      {/* blob 4 — velo de ACENTO de la piel (rosa salón / cobre barbería) que
+          envuelve el centro con color cálido, dándole ambiente y vida. */}
+      <Blob
+        className="left-1/2 top-1/3 h-[75vh] w-[75vh] -translate-x-1/2"
+        delay="-11s"
+        token="--accent"
+        strengthMul={0.5}
+        blur="130px"
+      />
 
       {/* grano/vignette sutil para premium */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgb(0_0_0/0.28))]" />

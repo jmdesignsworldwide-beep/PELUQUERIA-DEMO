@@ -241,6 +241,23 @@ body {
     0 2px 16px -6px rgb(var(--metallic) / 0.4);
 }
 
+/*
+  Glow de BORDE: halo de color del acento de la piel rodeando el CONTORNO del
+  elemento (rosa salón / cobre barbería). Ilumina el borde, no mancha el fondo.
+  Para tarjetas, bloques de cita, paneles y elementos clave.
+*/
+.glow-edge-soft {
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.12),
+    0 0 16px -4px rgb(var(--accent) / 0.22);
+}
+/* Más presente para elementos CLAVE (definido después → gana si coexisten). */
+.glow-edge {
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.18),
+    0 0 24px -3px rgb(var(--accent) / 0.34);
+}
+
 /* Glass más presente para barras/headers que necesitan separarse del fondo.
    Lleva un velo del acento de la piel para que el vidrio se sienta "iluminado"
    con calidez (rosa salón / cobre barbería), no frío y plano. */

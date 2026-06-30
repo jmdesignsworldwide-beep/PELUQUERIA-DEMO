@@ -845,7 +845,7 @@ export function AgendaClient() {
                     {hours.map((h) => (
                       <div
                         key={h}
-                        className="absolute right-2 -translate-y-1/2 text-[11px] tabular text-muted"
+                        className="absolute right-2 -translate-y-1/2 text-[11px] font-medium tabular text-fg/70"
                         style={{ top: (h - START_HOUR) * hourHeight }}
                       >
                         {h === START_HOUR ? "" : hourLabel(h)}
